@@ -1,0 +1,81 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Project-level dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Sub-project dependencies (API)
+hallucination-detector-api/node_modules/
+hallucination-detector-api/package-lock.json
+
+# testing
+/coverage
+
+# next.js (if used)
+/.next/
+/out/
+
+# production builds
+/build
+/dist
+
+# Environment files (project level)
+.env
+.env*.local
+hallucination-detector-api/.env
+hallucination-detector-api/environment.local
+
+# Deployment
+.vercel
+hallucination-detector-api/.vercel/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs (project level)
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Documentation temp files
+docs/.jekyll-cache/
+docs/_site/
+docs/.sass-cache/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Temporary files
+temp/
+tmp/
+.tmp/

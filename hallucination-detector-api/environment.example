@@ -1,0 +1,16 @@
+# Copy this file to .env and fill in your actual values
+
+# API Configuration
+PORT=3001
+NODE_ENV=development
+
+# Required API Keys
+EXA_API_KEY=your_exa_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# CORS Settings (comma-separated domains for production)
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001 

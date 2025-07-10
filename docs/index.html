@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fact Checker - AI-Powered Content Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-section h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 透明度设置 */
+        .transparency-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .transparency-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+
+        /* 进度显示 */
+        .progress-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-steps {
+            margin-top: 15px;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+
+        .progress-step.completed {
+            background: #e8f5e8;
+            border-left: 3px solid #4caf50;
+        }
+
+        .progress-step.error {
+            background: #ffebee;
+            border-left: 3px solid #f44336;
+        }
+
+        .step-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .step-icon.pending {
+            background: #e1e5e9;
+            color: #666;
+        }
+
+        .step-icon.active {
+            background: #2196f3;
+            color: white;
+        }
+
+        .step-icon.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-icon.error {
+            background: #f44336;
+            color: white;
+        }
+
+        .step-message {
+            flex: 1;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* 实时日志 */
+        .live-log {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #000;
+            color: #00ff00;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* 结果区域 */
+        .results {
+            margin-top: 30px;
+        }
+
+        .results h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .claim-card {
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .claim-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .claim-text {
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
+
+        .assessment {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .assessment.true {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .assessment.false {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .assessment.unknown,
+        .assessment.error {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .assessment.insufficient,
+        .assessment.information {
+            background: #ffeaa7;
+            color: #6c5700;
+        }
+
+        .assessment.partially {
+            background: #a8e6cf;
+            color: #155724;
+        }
+
+        .claim-details {
+            margin-bottom: 15px;
+        }
+
+        .confidence {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: #e1e5e9;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .confidence-fill.high {
+            background: #4caf50;
+        }
+
+        .confidence-fill.medium {
+            background: #ff9800;
+        }
+
+        .confidence-fill.low {
+            background: #f44336;
+        }
+
+        .summary {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        /* 透明度信息展示 */
+        .transparency-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #b3d9ff;
+        }
+
+        .transparency-toggle-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
+        .transparency-toggle-btn:hover {
+            text-decoration: underline;
+        }
+
+        .transparency-details {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .transparency-details.show {
+            display: block;
+        }
+
+        .sources-section {
+            margin-top: 10px;
+        }
+
+        .sources-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .source-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+
+        .source-title {
+            font-weight: 500;
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .source-url {
+            font-size: 12px;
+            color: #667eea;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .source-url:hover {
+            text-decoration: underline;
+        }
+
+        .source-snippet {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* AI 推理过程 */
+        .ai-reasoning {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff9e6;
+            border-radius: 6px;
+            border: 1px solid #ffe066;
+        }
+
+        .reasoning-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .reasoning-steps {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .reasoning-step {
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #007bff;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .reasoning-step:hover {
+            background: #e3f2fd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .step-description {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .step-time {
+            font-size: 12px;
+            color: #666;
+            background: #e1e5e9;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .step-details {
+            font-size: 14px;
+            color: #555;
+            margin-top: 8px;
+            padding-left: 10px;
+            border-left: 2px solid #dee2e6;
+        }
+
+        .processing-time {
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #e8f5e8;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2e7d32;
+            text-align: center;
+        }
+
+        /* 总结卡片 */
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .summary-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            margin-top: 5px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        .example-texts {
+            margin-top: 15px;
+        }
+
+        .example-texts button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .claim-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .assessment {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Fact Checker</h1>
+            <p>智能内容事实验证平台</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2>📝 输入要验证的内容</h2>
+                <textarea id="inputText" placeholder="请在此输入需要事实验证的文本内容..."></textarea>
+                
+                <div class="example-texts">
+                    <button class="btn btn-secondary" onclick="loadExample(1)">示例 1: 长城信息</button>
+                    <button class="btn btn-secondary" onclick="loadExample(2)">示例 2: 科技新闻</button>
+                    <button class="btn btn-secondary" onclick="loadExample(3)">示例 3: 历史事件</button>
+                </div>
+
+                <div class="transparency-section">
+                    <div class="transparency-toggle">
+                        <span>🔍 详细模式</span>
+                        <div class="toggle-switch" id="transparencyToggle" onclick="toggleTransparency()"></div>
+                        <span>显示验证过程详情</span>
+                    </div>
+                    <div class="transparency-options" id="transparencyOptions" style="display: none;">
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
+                            <input type="checkbox" id="showProgress" checked> 显示实时进度
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
+                            <input type="checkbox" id="showSources" checked> 显示搜索来源
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
+                            <input type="checkbox" id="showReasoning" checked> 显示AI推理过程
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="showLiveLog"> 显示实时日志
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="detectHallucinations()" id="detectBtn">
+                        ✨ 开始验证
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearResults()">
+                        🗑️ 清除结果
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAll()">
+                        🔄 清空所有
+                    </button>
+                </div>
+            </div>
+
+            <!-- 进度显示区域 -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-header">
+                    <span class="progress-title">验证进度</span>
+                    <span class="progress-percentage" id="progressPercentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="progressMessage" style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    准备开始验证...
+                </div>
+                <div class="progress-steps" id="progressSteps"></div>
+            </div>
+
+            <!-- 实时日志 -->
+            <div class="live-log" id="liveLog">
+                <div id="logContent"></div>
+            </div>
+
+            <div class="results" id="results" style="display: none;">
+                <h2>📊 验证结果</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="hallucination-detector-client.js"></script>
+    <script>
+        // 使用已部署的 Vercel API
+        const client = new HallucinationDetectorClient('https://hallubacken.vercel.app');
+        let transparencyEnabled = false;
+        
+        const examples = {
+            1: "中国的长城是世界上最长的城墙，全长超过两万公里。长城始建于春秋战国时期，历经多个朝代的修建和扩建。",
+            2: "苹果公司于2024年发布了iPhone 16，搭载了全新的A18芯片，支持6G网络，电池续航时间达到48小时。",
+            3: "第二次世界大战于1945年结束，美国在日本广岛和长崎投下了原子弹，导致日本无条件投降。"
+        };
+
+        function loadExample(num) {
+            document.getElementById('inputText').value = examples[num] || '';
+        }
+
+        function toggleTransparency() {
+            transparencyEnabled = !transparencyEnabled;
+            const toggle = document.getElementById('transparencyToggle');
+            const options = document.getElementById('transparencyOptions');
+            
+            toggle.classList.toggle('active', transparencyEnabled);
+            options.style.display = transparencyEnabled ? 'block' : 'none';
+        }
+
+        function addLogEntry(message) {
+            if (!document.getElementById('showLiveLog').checked) return;
+            
+            const logContent = document.getElementById('logContent');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContent.appendChild(entry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function updateProgress(percentage, message) {
+            if (!document.getElementById('showProgress').checked) return;
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const progressMessage = document.getElementById('progressMessage');
+            
+            progressFill.style.width = percentage + '%';
+            progressPercentage.textContent = percentage + '%';
+            progressMessage.textContent = message;
+        }
+
+        function addProgressStep(id, message, status = 'pending') {
+            if (!document.getElementById('showProgress').checked) return;
+            
+            const progressSteps = document.getElementById('progressSteps');
+            let step = document.getElementById(`step-${id}`);
+            
+            if (!step) {
+                step = document.createElement('div');
+                step.id = `step-${id}`;
+                step.className = 'progress-step';
+                step.innerHTML = `
+                    <div class="step-icon pending" id="icon-${id}">•</div>
+                    <div class="step-message" id="message-${id}">${message}</div>
+                `;
+                progressSteps.appendChild(step);
+            }
+            
+            // 更新状态
+            const icon = document.getElementById(`icon-${id}`);
+            const messageEl = document.getElementById(`message-${id}`);
+            
+            step.className = `progress-step ${status}`;
+            icon.className = `step-icon ${status}`;
+            messageEl.textContent = message;
+            
+            if (status === 'completed') {
+                icon.textContent = '✓';
+            } else if (status === 'error') {
+                icon.textContent = '✗';
+            } else if (status === 'active') {
+                icon.textContent = '⟳';
+            }
+        }
+
+        async function detectHallucinations() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('请输入要验证的文本');
+                return;
+            }
+
+            const detectBtn = document.getElementById('detectBtn');
+            const progressSection = document.getElementById('progressSection');
+            const liveLog = document.getElementById('liveLog');
+            const results = document.getElementById('results');
+
+            // 重置和显示进度界面
+            detectBtn.disabled = true;
+            results.style.display = 'none';
+            document.getElementById('progressSteps').innerHTML = '';
+            document.getElementById('logContent').innerHTML = '';
+            
+            if (transparencyEnabled) {
+                if (document.getElementById('showProgress').checked) {
+                    progressSection.style.display = 'block';
+                }
+                if (document.getElementById('showLiveLog').checked) {
+                    liveLog.style.display = 'block';
+                }
+            }
+
+            try {
+                const result = await client.detectHallucinations(text, {
+                    maxSearchResults: 3,
+                    confidenceThreshold: 80,
+                    includeSources: true,
+                    includeTransparency: transparencyEnabled,
+                }, (step, info) => {
+                    // 进度回调处理
+                    handleProgressUpdate(step, info);
+                });
+
+                displayResults(result);
+            } catch (error) {
+                console.error('❌ 检测失败:', error);
+                addLogEntry(`❌ 检测失败: ${error.message}`);
+                
+                // 显示详细错误信息
+                let errorHtml = `
+                    <div class="error">
+                        <strong>🚨 检测失败</strong><br>
+                        <strong>错误信息:</strong> ${error.message}<br>
+                `;
+                
+                // 如果是网络错误，提供更多信息
+                if (error.message.includes('HTTP 500')) {
+                    errorHtml += `
+                        <br><strong>可能原因:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>服务器内部错误 (可能是API配额不足)</li>
+                            <li>Anthropic或Exa API密钥问题</li>
+                            <li>输入文本过长或格式问题</li>
+                        </ul>
+                        <strong>建议:</strong>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>尝试使用较短的文本</li>
+                            <li>稍后再试</li>
+                            <li>检查浏览器控制台的详细错误信息</li>
+                        </ol>
+                    `;
+                } else if (error.message.includes('fetch')) {
+                    errorHtml += `
+                        <br><strong>网络连接问题</strong>
+                        <p>请检查网络连接是否正常，或稍后重试。</p>
+                    `;
+                }
+                
+                errorHtml += '</div>';
+                document.getElementById('resultsContent').innerHTML = errorHtml;
+                results.style.display = 'block';
+            } finally {
+                detectBtn.disabled = false;
+                if (transparencyEnabled) {
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        liveLog.style.display = 'none';
+                    }, 3000); // 3秒后隐藏进度
+                }
+            }
+        }
+
+        function handleProgressUpdate(step, info) {
+            addLogEntry(info.message);
+            
+            switch(step) {
+                case 'start':
+                    updateProgress(0, '开始检测流程...');
+                    addProgressStep('start', '🚀 启动检测系统', 'active');
+                    break;
+                    
+                case 'extracting_claims':
+                    updateProgress(info.progress || 10, info.message);
+                    addProgressStep('start', '🚀 启动检测系统', 'completed');
+                    addProgressStep('extract', '📋 提取声明中...', 'active');
+                    break;
+                    
+                case 'claims_extracted':
+                    updateProgress(info.progress || 25, info.message);
+                    addProgressStep('extract', `📋 提取到 ${info.claimsCount} 个声明`, 'completed');
+                    break;
+                    
+                case 'verifying_claim':
+                    updateProgress(info.progress || 30, info.message);
+                    addProgressStep(`claim-${info.currentClaim}`, 
+                        `🔍 验证声明 ${info.currentClaim}/${info.totalClaims}`, 'active');
+                    break;
+                    
+                case 'searching_sources':
+                    addProgressStep(`search-${info.claim.substring(0, 10)}`, 
+                        `�� 搜索信息源...`, 'active');
+                    break;
+                    
+                case 'sources_found':
+                    addProgressStep(`search-${info.claim.substring(0, 10)}`, 
+                        `🌐 找到 ${info.sourcesCount} 个信息源`, 'completed');
+                    break;
+                    
+                case 'analyzing_claim':
+                    addProgressStep(`analyze-${info.claim.substring(0, 10)}`, 
+                        `🧠 AI 分析中...`, 'active');
+                    break;
+                    
+                case 'claim_verified':
+                    addProgressStep(`analyze-${info.claim.substring(0, 10)}`, 
+                        `🧠 分析完成: ${info.assessment}`, 'completed');
+                    break;
+                    
+                case 'claim_error':
+                    addProgressStep(`analyze-${info.claim.substring(0, 10)}`, 
+                        `❌ 验证失败`, 'error');
+                    break;
+                    
+                case 'completed':
+                    updateProgress(100, '检测完成！');
+                    addProgressStep('complete', '✅ 检测完成', 'completed');
+                    break;
+                    
+                case 'error':
+                    updateProgress(0, `错误: ${info.message}`);
+                    addProgressStep('error', `❌ ${info.message}`, 'error');
+                    break;
+            }
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            console.log('📊 显示结果:', results);
+            
+            resultsContent.innerHTML = '';
+
+            if (!results.verifications || results.verifications.length === 0) {
+                resultsContent.innerHTML = '<p>未发现可验证的声明</p>';
+                resultsDiv.style.display = 'block';
+                return;
+            }
+
+            // 添加总结
+            const summary = results.summary;
+            const summaryHtml = `
+                <div class="summary-card">
+                    <h3>🎯 检测总结</h3>
+                    <div class="summary-stats">
+                        <div class="stat">
+                            <div class="stat-number">${summary.total_claims}</div>
+                            <div class="stat-label">总声明数</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">${summary.true_claims}</div>
+                            <div class="stat-label">真实声明</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">${summary.false_claims}</div>
+                            <div class="stat-label">虚假声明</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">${summary.accuracy_rate}%</div>
+                            <div class="stat-label">准确率</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            resultsContent.innerHTML = summaryHtml;
+
+            // 显示每个声明的验证结果
+            results.verifications.forEach((verification, index) => {
+                const assessment = verification.assessment || 'Unknown';
+                const confidenceScore = verification.confidence_score || 0;
+                const summary = verification.summary || '无法验证';
+                
+                // 置信度等级
+                let confidenceClass = 'low';
+                if (confidenceScore >= 80) confidenceClass = 'high';
+                else if (confidenceScore >= 60) confidenceClass = 'medium';
+                
+                let transparencyHtml = '';
+                if (transparencyEnabled && verification.transparency) {
+                    transparencyHtml = generateTransparencyHtml(verification);
+                }
+                
+                const cardHtml = `
+                    <div class="claim-card">
+                        <div class="claim-header">
+                            <span class="claim-text">声明 ${index + 1}: ${verification.claim}</span>
+                            <span class="assessment ${assessment.toLowerCase().replace(/\s+/g, '')}">${getAssessmentText(assessment)}</span>
+                        </div>
+                        <div class="claim-details">
+                            <div class="confidence">
+                                <strong>置信度:</strong> ${confidenceScore}%
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill ${confidenceClass}" style="width: ${confidenceScore}%"></div>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <strong>AI 分析:</strong> ${summary}
+                            </div>
+                        </div>
+                        ${transparencyHtml}
+                    </div>
+                `;
+                resultsContent.innerHTML += cardHtml;
+            });
+            
+            // 显示结果区域
+            resultsDiv.style.display = 'block';
+        }
+
+        function generateTransparencyHtml(verification) {
+            if (!document.getElementById('showSources').checked && !document.getElementById('showReasoning').checked) {
+                return '';
+            }
+            
+            let sourcesHtml = '';
+            let reasoningHtml = '';
+            
+            // 生成信息源展示
+            if (document.getElementById('showSources').checked && verification.sources && verification.sources.length > 0) {
+                const sourcesItems = verification.sources.map(source => `
+                    <div class="source-item">
+                        <div class="source-title">${source.title || '未知标题'}</div>
+                        <a href="${source.url}" target="_blank" class="source-url">${source.url}</a>
+                        ${source.text ? `<div class="source-snippet">${source.text.substring(0, 100)}...</div>` : ''}
+                    </div>
+                `).join('');
+                
+                sourcesHtml = `
+                    <div class="sources-section">
+                        <div class="sources-title">🔗 信息来源 (${verification.sources.length})</div>
+                        ${sourcesItems}
+                    </div>
+                `;
+            }
+            
+            // 生成AI推理过程展示
+            if (document.getElementById('showReasoning').checked && verification.transparency) {
+                const steps = verification.transparency.steps || [];
+                const claimText = verification.transparency.claim || verification.claim;
+                const startTime = verification.transparency.startTime;
+                const endTime = verification.transparency.endTime;
+                
+                const reasoningSteps = steps.map(step => {
+                    let stepDesc = '';
+                    let stepDetails = '';
+                    
+                    switch(step.step) {
+                        case 'search_sources':
+                            if (step.status === 'started') {
+                                stepDesc = `🔍 开始搜索信息源`;
+                                stepDetails = `使用 Exa.ai 搜索与声明相关的信息`;
+                            } else if (step.status === 'completed') {
+                                stepDesc = `🌐 搜索完成 - 找到 ${step.sourcesFound || 0} 个相关信息源`;
+                                stepDetails = step.sourcesFound > 0 ? 
+                                    `成功获取外部信息源，准备进行验证` : 
+                                    `未找到相关信息源，将标记为"信息不足"`;
+                            }
+                            break;
+                            
+                        case 'ai_analysis':
+                            if (step.status === 'started') {
+                                stepDesc = `🧠 开始 AI 分析`;
+                                stepDetails = `使用 ${step.model || 'Claude 3.5 Haiku'} 分析 ${step.sourcesUsed || 0} 个信息源`;
+                            } else if (step.status === 'completed') {
+                                const result = step.result || {};
+                                stepDesc = `✅ AI 分析完成`;
+                                stepDetails = `评估结果: ${result.assessment}, 置信度: ${result.confidence}%<br>
+                                            <em>详细推理逻辑请查看上方"AI 分析"部分</em>`;
+                            }
+                            break;
+                            
+                        case 'verification_error':
+                            stepDesc = `❌ 验证过程出现错误`;
+                            stepDetails = `错误信息: ${step.error}`;
+                            break;
+                            
+                        default:
+                            stepDesc = `${step.step} - ${step.status}`;
+                            stepDetails = '';
+                    }
+                    
+                    const timestamp = new Date(step.timestamp).toLocaleTimeString('zh-CN');
+                    return `
+                        <div class="reasoning-step">
+                            <div class="step-header">
+                                <span class="step-description">${stepDesc}</span>
+                                <span class="step-time">${timestamp}</span>
+                            </div>
+                            ${stepDetails ? `<div class="step-details">${stepDetails}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                // 计算处理时间
+                let processingTime = '';
+                if (startTime && endTime) {
+                    const duration = new Date(endTime) - new Date(startTime);
+                    processingTime = `<div class="processing-time">⏱️ 处理时间: ${duration}ms</div>`;
+                }
+                
+                reasoningHtml = `
+                    <div class="ai-reasoning">
+                        <div class="reasoning-title">🧠 AI 推理过程 - "${claimText.substring(0, 50)}${claimText.length > 50 ? '...' : ''}"</div>
+                        <div class="reasoning-steps">
+                            ${reasoningSteps}
+                        </div>
+                        ${processingTime}
+                    </div>
+                `;
+            }
+            
+            if (!sourcesHtml && !reasoningHtml) return '';
+            
+            return `
+                <div class="transparency-info">
+                    <button class="transparency-toggle-btn" onclick="toggleDetails(this)">
+                        🔍 查看详细信息 ▼
+                    </button>
+                    <div class="transparency-details">
+                        ${sourcesHtml}
+                        ${reasoningHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleDetails(button) {
+            const details = button.nextElementSibling;
+            const isVisible = details.classList.contains('show');
+            
+            if (isVisible) {
+                details.classList.remove('show');
+                button.textContent = '🔍 查看详细信息 ▼';
+            } else {
+                details.classList.add('show');
+                button.textContent = '🔍 隐藏详细信息 ▲';
+            }
+        }
+
+        function getAssessmentText(assessment) {
+            switch(assessment) {
+                case 'True': return '✓ 真实';
+                case 'False': return '✗ 虚假';
+                case 'Insufficient Information': return '⚠️ 信息不足';
+                case 'Partially True': return '◐ 部分真实';
+                case 'Partially False': return '◑ 部分虚假';
+                case 'Error': return '❌ 检测错误';
+                case 'Unknown':
+                default: return '? 未知';
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('resultsContent').innerHTML = '';
+            document.getElementById('progressSection').style.display = 'none';
+            document.getElementById('liveLog').style.display = 'none';
+        }
+
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            clearResults();
+        }
+
+        // 页面加载完成，等待用户操作
+    </script>
+</body>
+</html> 

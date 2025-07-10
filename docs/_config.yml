@@ -1,0 +1,31 @@
+title: Fact Checker
+description: 智能内容事实验证平台 - 基于AI的实时事实检查工具
+baseurl: ""
+url: "https://yangyuwen-bri.github.io"
+
+# GitHub Pages specific settings
+theme: jekyll-theme-minimal
+plugins:
+  - jekyll-relative-links
+
+# SEO settings
+author: Yang Yuwen
+lang: zh-CN
+
+# Navigation
+navigation:
+  - name: 主页
+    link: /
+  - name: API文档
+    link: /hallucination-detector-api/
+  - name: GitHub
+    link: https://github.com/yangyuwen-bri/FactChecker
+
+# Social links
+github_username: yangyuwen-bri
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - node_modules/
+  - .gitignore 
