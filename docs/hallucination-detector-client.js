@@ -2,6 +2,7 @@
  * Hallucination Detector API Client
  * 一个简单的 JavaScript 客户端库，用于调用 Hallucination Detector API
  * 增强版本：支持进度回调和透明度信息
+ * 版本：v2.1.0 - 修复搜索结果计数解析问题
  */
 
 class HallucinationDetectorClient {
