@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app';
+const BASE_URL = 'https://hallubacken.vercel.app';
 
 async function testDeployedAPI() {
   console.log('🚀 测试部署的 API...\n');
@@ -21,7 +21,7 @@ async function testDeployedAPI() {
     // 测试搜索
     console.log('\n🔍 测试搜索...');
     const searchResponse = await axios.post(`${BASE_URL}/api/search/exa`, {
-      query: '长城长度 中国'
+      claim: '中国的长城是世界上最长的城墙，全长超过两万公里'
     });
     console.log('✅ 搜索结果:', {
       success: searchResponse.data.success,

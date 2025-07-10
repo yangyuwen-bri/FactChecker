@@ -98,7 +98,18 @@ class HallucinationDetectorClient {
       }
 
       const result = await response.json();
-      console.log('✅ 搜索成功，找到', result.results?.length || 0, '个结果');
+      
+      // 🎯 修复：正确解析搜索结果数量
+      let actualResultsCount = 0;
+      if (result.results) {
+        actualResultsCount = result.results.length;
+      } else if (result.data?.results) {
+        actualResultsCount = result.data.results.length;
+      } else if (Array.isArray(result)) {
+        actualResultsCount = result.length;
+      }
+      
+      console.log('✅ 搜索成功，找到', actualResultsCount, '个结果');
       return result;
     } catch (error) {
       console.error('❌ 搜索失败:', error);

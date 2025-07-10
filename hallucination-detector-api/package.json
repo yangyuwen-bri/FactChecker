@@ -8,8 +8,12 @@
     "dev": "nodemon src/server.js",
     "build": "echo 'No build step required for this Node.js project'",
     "test": "jest",
-    "test-api": "node test-api.js",
-    "test-chinese": "node test-chinese-api.js",
+    "test:basic": "node tests/test-api.js",
+    "test:chinese": "node tests/test-chinese-api.js",
+    "test:deployed": "node tests/test-deployed-api.js",
+    "test:edge": "node tests/test-edge-cases.js",
+    "test:zhou-yu": "node tests/test-edge-cases.js --case=zhou-yu",
+    "test:all": "npm run test:basic && npm run test:chinese && npm run test:edge",
     "vercel-build": "echo 'Build completed'"
   },
   "keywords": [

@@ -171,8 +171,10 @@ async function runChineseTests() {
     console.log('\n❌ 未找到中文信息源。使用测试信息源进行验证。');
   }
   
-  // 测试4: 验证中文声明
-  const sourcesToUse = sources && sources.length > 0 ? sources.slice(0, 2) : chineseTestSources;
+  // 测试4: 验证中文声明 (使用与客户端一致的源数量限制)
+  const maxSearchResults = 3; // 🎯 与客户端保持一致
+  const sourcesToUse = sources && sources.length > 0 ? sources.slice(0, maxSearchResults) : chineseTestSources;
+  console.log(`📊 使用前 ${Math.min(maxSearchResults, sourcesToUse.length)} 个信息源进行验证`);
   await testVerifyChineseClaim(firstClaim.claim, firstClaim.original_text, sourcesToUse);
   
   // 测试5: 中文批量验证
