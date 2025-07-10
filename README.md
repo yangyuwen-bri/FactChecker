@@ -2,6 +2,14 @@
 
 智能内容事实验证平台 - 基于AI的实时事实检查工具
 
+<div align="center">
+
+[![在线体验](https://img.shields.io/badge/🌐_在线体验-FactChecker-blue?style=for-the-badge)](https://yangyuwen-bri.github.io/FactChecker/)
+[![API服务](https://img.shields.io/badge/🚀_API_服务-Vercel-green?style=for-the-badge)](https://hallubacken.vercel.app)
+[![GitHub](https://img.shields.io/badge/⭐_Star-GitHub-orange?style=for-the-badge)](https://github.com/yangyuwen-bri/FactChecker)
+
+</div>
+
 ## 🎯 项目简介
 
 Fact Checker是一个智能的内容事实验证平台，能够帮助用户验证文本内容的准确性。系统通过AI技术自动提取文本中的可验证声明，并通过网络搜索找到相关证据进行事实核查，最终给出验证结果和置信度评分。
@@ -31,7 +39,7 @@ Fact Checker是一个智能的内容事实验证平台，能够帮助用户验�
 ## 🚀 快速开始
 
 ### 在线体验
-- **演示网页**: [GitHub Pages链接](https://yangyuwen-bri.github.io/FactChecker/) (即将上线)
+- **演示网页**: [https://yangyuwen-bri.github.io/FactChecker/](https://yangyuwen-bri.github.io/FactChecker/) ✨
 - **API服务**: [https://hallubacken.vercel.app](https://hallubacken.vercel.app)
 
 ### 本地运行
