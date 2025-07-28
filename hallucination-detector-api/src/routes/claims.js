@@ -42,11 +42,10 @@ router.post('/extract', async (req, res, next) => {
       });
     }
 
-    // 严格验证 Anthropic API Key
+    // 验证 Anthropic API Key (放宽验证规则)
     if (typeof anthropic_api_key !== 'string' || 
         !anthropic_api_key.startsWith('sk-ant-') ||
-        anthropic_api_key.length < 50 ||
-        !/^[a-zA-Z0-9\-_]+$/.test(anthropic_api_key)) {
+        anthropic_api_key.length < 80) {
       return res.status(400).json({ 
         error: 'Anthropic API Key 格式无效或不完整',
         timestamp: new Date().toISOString()
