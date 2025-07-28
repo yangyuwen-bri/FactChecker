@@ -56,6 +56,13 @@ router.post('/extract', async (req, res, next) => {
     let object;
 
     try {
+      // Debug: log API key info for claims extraction
+      console.log('声明提取 API Key 调试信息:', {
+        hasKey: !!anthropic_api_key,
+        keyLength: anthropic_api_key?.length,
+        keyPrefix: anthropic_api_key?.substring(0, 10)
+      });
+
       // Attempt to generate object using AI
       const result = await generateObject({
         model: anthropic('claude-3-5-haiku-20241022', {

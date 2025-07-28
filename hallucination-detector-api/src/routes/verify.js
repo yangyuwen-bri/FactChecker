@@ -70,6 +70,14 @@ router.post('/claims', async (req, res, next) => {
       });
     }
 
+    // Debug: log API key info (without exposing the full key)
+    console.log('API Key 调试信息:', {
+      hasKey: !!anthropic_api_key,
+      keyLength: anthropic_api_key?.length,
+      keyPrefix: anthropic_api_key?.substring(0, 10),
+      keyType: typeof anthropic_api_key
+    });
+
     const { object } = await generateObject({
       model: anthropic('claude-3-5-haiku-20241022', {
         apiKey: anthropic_api_key,
@@ -261,6 +269,13 @@ router.post('/batch', async (req, res, next) => {
           });
           continue;
         }
+
+        // Debug: log API key info for batch verification
+        console.log('批量验证 API Key 调试信息:', {
+          hasKey: !!anthropic_api_key,
+          keyLength: anthropic_api_key?.length,
+          keyPrefix: anthropic_api_key?.substring(0, 10)
+        });
 
         // Process the claim (reuse the logic from single claim verification)
         const { object } = await generateObject({
