@@ -123,6 +123,87 @@
             transform: none;
         }
 
+        /* API Key 设置区域 */
+        .api-keys-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #b3d9ff;
+        }
+
+        .api-keys-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .api-key-input-group {
+            margin-bottom: 20px;
+        }
+
+        .api-key-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .api-key-input-group input {
+            transition: border-color 0.3s;
+        }
+
+        .api-key-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .api-key-input-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .api-key-input-group small a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .api-key-input-group small a:hover {
+            text-decoration: underline;
+        }
+
+        .api-key-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .api-key-status {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .api-key-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .api-key-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .api-key-status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
         /* 透明度设置 */
         .transparency-section {
             margin-top: 20px;
@@ -416,6 +497,24 @@
             margin-bottom: 15px;
         }
 
+        .time-sensitivity-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #856404;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .time-sensitivity-warning strong {
+            color: #6c5700;
+            white-space: nowrap;
+        }
+
         /* 透明度信息展示 */
         .transparency-info {
             margin-top: 15px;
@@ -672,6 +771,67 @@
                     <button class="btn btn-secondary" onclick="loadExample(3)">示例 3: 历史事件</button>
                 </div>
 
+                <!-- API Key 设置区域 -->
+                <div class="api-keys-section">
+                    <h3>🔑 API Key 设置</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                        请输入你的API密钥。密钥将保存在本地浏览器中，不会上传到服务器。
+                    </p>
+                    
+                    <div class="api-key-input-group">
+                        <label for="anthropicApiKey">Anthropic API Key:</label>
+                        <div style="position: relative;">
+                            <input 
+                                type="password" 
+                                id="anthropicApiKey" 
+                                placeholder="sk-ant-api..." 
+                                style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                            >
+                            <button 
+                                type="button" 
+                                onclick="togglePasswordVisibility('anthropicApiKey')"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                            >👁️</button>
+                        </div>
+                        <small style="color: #666;">
+                            获取地址: <a href="https://console.anthropic.com" target="_blank">https://console.anthropic.com</a><br>
+                            格式：以 sk-ant- 开头
+                        </small>
+                    </div>
+
+                    <div class="api-key-input-group">
+                        <label for="exaApiKey">Exa API Key:</label>
+                        <div style="position: relative;">
+                            <input 
+                                type="password" 
+                                id="exaApiKey" 
+                                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
+                                style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                            >
+                            <button 
+                                type="button" 
+                                onclick="togglePasswordVisibility('exaApiKey')"
+                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                            >👁️</button>
+                        </div>
+                        <small style="color: #666;">
+                            获取地址: <a href="https://dashboard.exa.ai/api-keys" target="_blank">https://dashboard.exa.ai/api-keys</a><br>
+                            格式：UUID (如：12345678-1234-1234-1234-123456789abc)
+                        </small>
+                    </div>
+
+                    <div class="api-key-actions">
+                        <button class="btn btn-secondary" onclick="testApiKeys()" id="testKeysBtn">
+                            🧪 测试API密钥
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearApiKeys()">
+                            🗑️ 清除密钥
+                        </button>
+                    </div>
+
+                    <div id="apiKeyStatus" style="margin-top: 10px;"></div>
+                </div>
+
                 <div class="transparency-section">
                     <div class="transparency-toggle">
                         <span>🔍 详细模式</span>
@@ -816,92 +976,7 @@
             }
         }
 
-        async function detectHallucinations() {
-            const text = document.getElementById('inputText').value.trim();
-            if (!text) {
-                alert('请输入要验证的文本');
-                return;
-            }
 
-            const detectBtn = document.getElementById('detectBtn');
-            const progressSection = document.getElementById('progressSection');
-            const liveLog = document.getElementById('liveLog');
-            const results = document.getElementById('results');
-
-            // 重置和显示进度界面
-            detectBtn.disabled = true;
-            results.style.display = 'none';
-            document.getElementById('progressSteps').innerHTML = '';
-            document.getElementById('logContent').innerHTML = '';
-            
-            if (transparencyEnabled) {
-                if (document.getElementById('showProgress').checked) {
-                    progressSection.style.display = 'block';
-                }
-                if (document.getElementById('showLiveLog').checked) {
-                    liveLog.style.display = 'block';
-                }
-            }
-
-            try {
-                const result = await client.detectHallucinations(text, {
-                    maxSearchResults: 3,
-                    confidenceThreshold: 80,
-                    includeSources: true,
-                    includeTransparency: transparencyEnabled,
-                }, (step, info) => {
-                    // 进度回调处理
-                    handleProgressUpdate(step, info);
-                });
-
-                displayResults(result);
-            } catch (error) {
-                console.error('❌ 检测失败:', error);
-                addLogEntry(`❌ 检测失败: ${error.message}`);
-                
-                // 显示详细错误信息
-                let errorHtml = `
-                    <div class="error">
-                        <strong>🚨 检测失败</strong><br>
-                        <strong>错误信息:</strong> ${error.message}<br>
-                `;
-                
-                // 如果是网络错误，提供更多信息
-                if (error.message.includes('HTTP 500')) {
-                    errorHtml += `
-                        <br><strong>可能原因:</strong>
-                        <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>服务器内部错误 (可能是API配额不足)</li>
-                            <li>Anthropic或Exa API密钥问题</li>
-                            <li>输入文本过长或格式问题</li>
-                        </ul>
-                        <strong>建议:</strong>
-                        <ol style="margin: 10px 0; padding-left: 20px;">
-                            <li>尝试使用较短的文本</li>
-                            <li>稍后再试</li>
-                            <li>检查浏览器控制台的详细错误信息</li>
-                        </ol>
-                    `;
-                } else if (error.message.includes('fetch')) {
-                    errorHtml += `
-                        <br><strong>网络连接问题</strong>
-                        <p>请检查网络连接是否正常，或稍后重试。</p>
-                    `;
-                }
-                
-                errorHtml += '</div>';
-                document.getElementById('resultsContent').innerHTML = errorHtml;
-                results.style.display = 'block';
-            } finally {
-                detectBtn.disabled = false;
-                if (transparencyEnabled) {
-                    setTimeout(() => {
-                        progressSection.style.display = 'none';
-                        liveLog.style.display = 'none';
-                    }, 3000); // 3秒后隐藏进度
-                }
-            }
-        }
 
         function handleProgressUpdate(step, info) {
             addLogEntry(info.message);
@@ -1009,6 +1084,7 @@
 
             // 显示每个声明的验证结果
             results.verifications.forEach((verification, index) => {
+
                 const assessment = verification.assessment || 'Unknown';
                 const confidenceScore = verification.confidence_score || 0;
                 const summary = verification.summary || '无法验证';
@@ -1039,6 +1115,12 @@
                             <div class="summary">
                                 <strong>AI 分析:</strong> ${summary}
                             </div>
+                            ${verification.time_sensitivity_note ? `
+                            <div class="time-sensitivity-warning">
+                                <strong>📅 时效性提醒:</strong> ${verification.time_sensitivity_note}
+                            </div>
+                            ` : ''}
+
                         </div>
                         ${transparencyHtml}
                     </div>
@@ -1205,7 +1287,305 @@
             clearResults();
         }
 
+        // API Key 管理功能
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        function saveApiKeys() {
+            const anthropicKey = document.getElementById('anthropicApiKey').value;
+            const exaKey = document.getElementById('exaApiKey').value;
+            
+            if (anthropicKey) {
+                localStorage.setItem('anthropic_api_key', anthropicKey);
+            }
+            if (exaKey) {
+                localStorage.setItem('exa_api_key', exaKey);
+            }
+        }
+
+        function loadApiKeys() {
+            const anthropicKey = localStorage.getItem('anthropic_api_key');
+            const exaKey = localStorage.getItem('exa_api_key');
+            
+            if (anthropicKey) {
+                document.getElementById('anthropicApiKey').value = anthropicKey;
+            }
+            if (exaKey) {
+                document.getElementById('exaApiKey').value = exaKey;
+            }
+        }
+
+        function clearApiKeys() {
+            document.getElementById('anthropicApiKey').value = '';
+            document.getElementById('exaApiKey').value = '';
+            localStorage.removeItem('anthropic_api_key');
+            localStorage.removeItem('exa_api_key');
+            showApiKeyStatus('API密钥已清除', 'success');
+        }
+
+        function getApiKeys() {
+            return {
+                anthropic: document.getElementById('anthropicApiKey').value.trim(),
+                exa: document.getElementById('exaApiKey').value.trim()
+            };
+        }
+
+        function validateApiKeys() {
+            const keys = getApiKeys();
+            
+            if (!keys.anthropic) {
+                showApiKeyStatus('请输入Anthropic API Key', 'error');
+                return false;
+            }
+            
+            if (!keys.exa) {
+                showApiKeyStatus('请输入Exa API Key', 'error');
+                return false;
+            }
+            
+            // Anthropic API Key 严格验证
+            if (!validateAnthropicKey(keys.anthropic)) {
+                return false;
+            }
+            
+            // Exa API Key 严格验证
+            if (!validateExaKey(keys.exa)) {
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateAnthropicKey(key) {
+            // 格式：sk-ant-api03-xxxxxxx（总长度通常在100+字符）
+            if (!key.startsWith('sk-ant-')) {
+                showApiKeyStatus('Anthropic API Key格式无效（应以sk-ant-开头）', 'error');
+                return false;
+            }
+            
+            // 检查长度（Anthropic API Key通常很长）
+            if (key.length < 50) {
+                showApiKeyStatus('Anthropic API Key长度过短，请检查是否完整', 'error');
+                return false;
+            }
+            
+            // 检查字符集（只允许字母、数字、连字符、下划线）
+            const validChars = /^[a-zA-Z0-9\-_]+$/;
+            if (!validChars.test(key)) {
+                showApiKeyStatus('Anthropic API Key包含无效字符', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateExaKey(key) {
+            // 严格的UUID v4格式验证
+            const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            
+            if (!uuidV4Regex.test(key)) {
+                showApiKeyStatus('Exa API Key格式无效（应为标准UUID格式）', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        async function testApiKeys() {
+            if (!validateApiKeys()) {
+                return;
+            }
+            
+            const testBtn = document.getElementById('testKeysBtn');
+            const originalText = testBtn.textContent;
+            testBtn.disabled = true;
+            testBtn.textContent = '🧪 测试中...';
+            
+            showApiKeyStatus('正在测试API密钥...', 'warning');
+            
+            try {
+                const keys = getApiKeys();
+                
+                // 测试Anthropic API
+                const anthropicTest = await fetch('https://hallubacken.vercel.app/api/verify/claims', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        claim: '测试声明',
+                        original_text: '测试文本',
+                        exasources: [{ text: '测试', url: 'test' }],
+                        anthropic_api_key: keys.anthropic,
+                        exa_api_key: keys.exa
+                    }),
+                });
+                
+                if (anthropicTest.ok) {
+                    showApiKeyStatus('✅ API密钥验证成功！', 'success');
+                    saveApiKeys(); // 保存有效的密钥
+                } else {
+                    const error = await anthropicTest.text();
+                    showApiKeyStatus(`❌ API密钥验证失败: ${error}`, 'error');
+                }
+                
+            } catch (error) {
+                showApiKeyStatus(`❌ 测试失败: ${error.message}`, 'error');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = originalText;
+            }
+        }
+
+        function showApiKeyStatus(message, type) {
+            const statusDiv = document.getElementById('apiKeyStatus');
+            statusDiv.className = `api-key-status ${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            // 3秒后自动隐藏成功消息
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 修改检测功能，加入API Key验证
+        async function detectHallucinations() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('请输入要验证的文本');
+                return;
+            }
+
+            // 验证API Key
+            if (!validateApiKeys()) {
+                return;
+            }
+
+            // 自动保存有效的API Key
+            saveApiKeys();
+
+            const detectBtn = document.getElementById('detectBtn');
+            const progressSection = document.getElementById('progressSection');
+            const liveLog = document.getElementById('liveLog');
+            const results = document.getElementById('results');
+
+            // 重置和显示进度界面
+            detectBtn.disabled = true;
+            results.style.display = 'none';
+            document.getElementById('progressSteps').innerHTML = '';
+            document.getElementById('logContent').innerHTML = '';
+            
+            if (transparencyEnabled) {
+                if (document.getElementById('showProgress').checked) {
+                    progressSection.style.display = 'block';
+                }
+                if (document.getElementById('showLiveLog').checked) {
+                    liveLog.style.display = 'block';
+                }
+            }
+
+            try {
+                const keys = getApiKeys();
+                
+                const result = await client.detectHallucinations(text, {
+                    maxSearchResults: 3,
+                    confidenceThreshold: 80,
+                    includeSources: true,
+                    includeTransparency: transparencyEnabled,
+                    anthropicApiKey: keys.anthropic,
+                    exaApiKey: keys.exa
+                }, (step, info) => {
+                    // 进度回调处理
+                    handleProgressUpdate(step, info);
+                });
+
+                displayResults(result);
+            } catch (error) {
+                console.error('❌ 检测失败:', error);
+                addLogEntry(`❌ 检测失败: ${error.message}`);
+                
+                // 显示详细错误信息
+                let errorHtml = `
+                    <div class="error">
+                        <strong>🚨 检测失败</strong><br>
+                        <strong>错误信息:</strong> ${error.message}<br>
+                `;
+                
+                // 如果是API Key相关错误，提供更多信息
+                if (error.message.includes('401') || error.message.includes('API key')) {
+                    errorHtml += `
+                        <br><strong>可能原因:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>API密钥无效或已过期</li>
+                            <li>API密钥权限不足</li>
+                            <li>API密钥格式错误</li>
+                        </ul>
+                        <strong>建议:</strong>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>检查API密钥是否正确</li>
+                            <li>确认API密钥有足够的余额</li>
+                            <li>点击"测试API密钥"按钮验证</li>
+                        </ol>
+                    `;
+                } else if (error.message.includes('HTTP 500')) {
+                    errorHtml += `
+                        <br><strong>可能原因:</strong>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>服务器内部错误</li>
+                            <li>API配额不足</li>
+                            <li>输入文本过长或格式问题</li>
+                        </ul>
+                        <strong>建议:</strong>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>尝试使用较短的文本</li>
+                            <li>稍后再试</li>
+                            <li>检查浏览器控制台的详细错误信息</li>
+                        </ol>
+                    `;
+                } else if (error.message.includes('fetch')) {
+                    errorHtml += `
+                        <br><strong>网络连接问题</strong>
+                        <p>请检查网络连接是否正常，或稍后重试。</p>
+                    `;
+                }
+                
+                errorHtml += '</div>';
+                document.getElementById('resultsContent').innerHTML = errorHtml;
+                results.style.display = 'block';
+            } finally {
+                detectBtn.disabled = false;
+                if (transparencyEnabled) {
+                    setTimeout(() => {
+                        progressSection.style.display = 'none';
+                        liveLog.style.display = 'none';
+                    }, 3000); // 3秒后隐藏进度
+                }
+            }
+        }
+
+        // 页面加载时恢复API Key
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApiKeys();
+        });
+
+        // API Key输入框失焦时自动保存
+        document.getElementById('anthropicApiKey').addEventListener('blur', saveApiKeys);
+        document.getElementById('exaApiKey').addEventListener('blur', saveApiKeys);
+
         // 页面加载完成，等待用户操作
     </script>
 </body>
-</html> 
+</html>

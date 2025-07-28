@@ -25,8 +25,9 @@ class HallucinationDetectorClient {
   /**
    * 从文本中提取声明
    * @param {string} content - 要分析的文本内容
+   * @param {string} anthropicApiKey - Anthropic API Key
    */
-  async extractClaims(content) {
+  async extractClaims(content, anthropicApiKey) {
     try {
       console.log('🔍 调用提取声明API...', `${this.baseUrl}/api/claims/extract`);
       
@@ -35,7 +36,10 @@ class HallucinationDetectorClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ 
+          content,
+          anthropic_api_key: anthropicApiKey
+        }),
       });
 
       console.log('📡 API响应状态:', response.status, response.statusText);
@@ -71,8 +75,9 @@ class HallucinationDetectorClient {
   /**
    * 搜索相关信息源
    * @param {string} query - 搜索查询
+   * @param {string} exaApiKey - Exa API Key
    */
-  async searchSources(query) {
+  async searchSources(query, exaApiKey) {
     try {
       console.log('🌐 调用搜索API...', query);
       
@@ -81,7 +86,10 @@ class HallucinationDetectorClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ claim: query }),
+        body: JSON.stringify({ 
+          claim: query,
+          exa_api_key: exaApiKey
+        }),
       });
 
       console.log('📡 搜索API响应状态:', response.status);
@@ -123,8 +131,9 @@ class HallucinationDetectorClient {
    * @param {string} claim - 要验证的声明
    * @param {string} originalText - 原始文本
    * @param {Array} exaSources - 相关信息源
+   * @param {string} anthropicApiKey - Anthropic API Key
    */
-  async verifyClaim(claim, originalText, exaSources) {
+  async verifyClaim(claim, originalText, exaSources, anthropicApiKey) {
     try {
       console.log('🧠 调用验证API...', claim.substring(0, 50) + '...');
       
@@ -137,6 +146,7 @@ class HallucinationDetectorClient {
           claim,
           original_text: originalText,
           exasources: exaSources,
+          anthropic_api_key: anthropicApiKey,
         }),
       });
 
@@ -155,8 +165,10 @@ class HallucinationDetectorClient {
       }
 
       const result = await response.json();
-      console.log('✅ 验证完成:', result.claims?.assessment || result.assessment);
-      return result;
+
+      console.log('✅ 验证完成:', result.data?.assessment);
+      // 返回正确的数据格式给前端
+      return result.data || result;
     } catch (error) {
       console.error('❌ 验证失败:', error);
       throw new Error(`验证声明失败: ${error.message}`);
@@ -205,7 +217,17 @@ class HallucinationDetectorClient {
       confidenceThreshold = 80,
       includeSources = true,
       includeTransparency = true, // 新增：是否包含透明度信息
+      anthropicApiKey = null, // 新增：Anthropic API Key
+      exaApiKey = null, // 新增：Exa API Key
     } = options;
+
+    // 验证API Key
+    if (!anthropicApiKey) {
+      throw new Error('缺少 Anthropic API Key');
+    }
+    if (!exaApiKey) {
+      throw new Error('缺少 Exa API Key');
+    }
 
     // 进度回调辅助函数
     const callProgress = (step, info) => {
@@ -227,7 +249,7 @@ class HallucinationDetectorClient {
         progress: 10
       });
 
-      const claimsResult = await this.extractClaims(text);
+      const claimsResult = await this.extractClaims(text, anthropicApiKey);
       console.log('🔍 提取声明原始响应:', claimsResult);
       
       // 处理不同的API响应格式
@@ -312,7 +334,7 @@ class HallucinationDetectorClient {
         });
 
         try {
-          const searchResult = await this.searchSources(claim.claim);
+          const searchResult = await this.searchSources(claim.claim, exaApiKey);
           console.log('🌐 搜索原始响应:', searchResult);
           
           // 处理不同的搜索响应格式
@@ -387,7 +409,8 @@ class HallucinationDetectorClient {
           const verificationResult = await this.verifyClaim(
             claim.claim,
             claim.original_text,
-            sources.slice(0, maxSearchResults)
+            sources.slice(0, maxSearchResults),
+            anthropicApiKey
           );
 
           console.log('🧠 验证原始响应:', verificationResult);
