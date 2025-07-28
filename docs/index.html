@@ -1305,31 +1305,30 @@
             const anthropicKey = document.getElementById('anthropicApiKey').value;
             const exaKey = document.getElementById('exaApiKey').value;
             
-            if (anthropicKey) {
-                localStorage.setItem('anthropic_api_key', anthropicKey);
-            }
-            if (exaKey) {
-                localStorage.setItem('exa_api_key', exaKey);
-            }
+            const keys = {
+                anthropic: anthropicKey,
+                exa: exaKey
+            };
+            
+            localStorage.setItem('hallucination_detector_api_keys', JSON.stringify(keys));
+            showApiKeyStatus('API密钥已保存', 'success');
         }
 
         function loadApiKeys() {
-            const anthropicKey = localStorage.getItem('anthropic_api_key');
-            const exaKey = localStorage.getItem('exa_api_key');
+            const storedKeys = JSON.parse(localStorage.getItem('hallucination_detector_api_keys') || '{}');
             
-            if (anthropicKey) {
-                document.getElementById('anthropicApiKey').value = anthropicKey;
+            if (storedKeys.anthropic) {
+                document.getElementById('anthropicApiKey').value = storedKeys.anthropic;
             }
-            if (exaKey) {
-                document.getElementById('exaApiKey').value = exaKey;
+            if (storedKeys.exa) {
+                document.getElementById('exaApiKey').value = storedKeys.exa;
             }
         }
 
         function clearApiKeys() {
             document.getElementById('anthropicApiKey').value = '';
             document.getElementById('exaApiKey').value = '';
-            localStorage.removeItem('anthropic_api_key');
-            localStorage.removeItem('exa_api_key');
+            localStorage.removeItem('hallucination_detector_api_keys');
             showApiKeyStatus('API密钥已清除', 'success');
         }
 
