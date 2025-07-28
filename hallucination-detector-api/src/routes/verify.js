@@ -1,5 +1,5 @@
 const express = require('express');
-const { anthropic } = require("@ai-sdk/anthropic");
+const { createAnthropic } = require("@ai-sdk/anthropic");
 const { generateObject } = require('ai');
 const { z } = require('zod');
 
@@ -77,10 +77,13 @@ router.post('/claims', async (req, res, next) => {
       keyType: typeof anthropic_api_key
     });
 
+    // Create Anthropic provider instance with user's API key
+    const userAnthropic = createAnthropic({
+      apiKey: anthropic_api_key,
+    });
+
     const { object } = await generateObject({
-      model: anthropic('claude-3-5-haiku-20241022', {
-        apiKey: anthropic_api_key,
-      }),
+      model: userAnthropic('claude-3-5-haiku-20241022'),
       schema: factCheckSchema,
       output: 'object',
       prompt: `你是一个专业的事实核查专家。请注意以下重要限制和指导原则：
@@ -275,11 +278,14 @@ router.post('/batch', async (req, res, next) => {
           keyPrefix: anthropic_api_key?.substring(0, 10)
         });
 
+        // Create Anthropic provider instance with user's API key
+        const userAnthropic = createAnthropic({
+          apiKey: anthropic_api_key,
+        });
+
         // Process the claim (reuse the logic from single claim verification)
         const { object } = await generateObject({
-          model: anthropic('claude-3-5-haiku-20241022', {
-            apiKey: anthropic_api_key,
-          }),
+          model: userAnthropic('claude-3-5-haiku-20241022'),
           schema: factCheckSchema,
           output: 'object',
           prompt: `你是一个专业的事实核查专家。请注意以下重要限制和指导原则：

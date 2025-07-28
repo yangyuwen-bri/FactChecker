@@ -1,5 +1,5 @@
 const express = require('express');
-const { anthropic } = require("@ai-sdk/anthropic");
+const { createAnthropic } = require("@ai-sdk/anthropic");
 const { generateObject } = require('ai');
 const { z } = require('zod');
 
@@ -66,10 +66,13 @@ router.post('/extract', async (req, res, next) => {
       console.log('🔧 准备调用Anthropic，API Key长度:', anthropic_api_key.length);
       console.log('🔧 API Key前10字符:', anthropic_api_key.substring(0, 10));
       
+      // Create Anthropic provider instance with user's API key
+      const userAnthropic = createAnthropic({
+        apiKey: anthropic_api_key,
+      });
+      
       const result = await generateObject({
-        model: anthropic('claude-3-5-haiku-20241022', {
-          apiKey: anthropic_api_key,
-        }),
+        model: userAnthropic('claude-3-5-haiku-20241022'),
         schema: claimsSchema, 
         prompt: `你是一个专业的声明提取专家，专门识别可以通过外部信息源验证或反驳的声明。
 
