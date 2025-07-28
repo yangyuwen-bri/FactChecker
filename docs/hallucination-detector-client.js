@@ -382,6 +382,7 @@ class HallucinationDetectorClient {
               assessment: 'Insufficient Information',
               confidence_score: 0,
               summary: '未找到相关信息源进行验证',
+              time_sensitivity_note: undefined, // 搜索失败时无时效性信息
               sources: [],
               transparency: claimProcessLog
             });
@@ -429,6 +430,7 @@ class HallucinationDetectorClient {
             assessment: verificationData.assessment || 'Unknown',
             confidence_score: verificationData.confidence_score || 0,
             summary: verificationData.summary || '无法验证',
+            time_sensitivity_note: verificationData.time_sensitivity_note, // 添加时效性注释字段
             sources: includeSources ? sources.slice(0, maxSearchResults) : [],
             transparency: includeTransparency ? claimProcessLog : undefined
           };
@@ -476,6 +478,7 @@ class HallucinationDetectorClient {
             assessment: 'Error',
             confidence_score: 0,
             summary: `验证过程中出现错误: ${error.message}`,
+            time_sensitivity_note: undefined, // 验证失败时无时效性信息
             sources: [],
             transparency: includeTransparency ? claimProcessLog : undefined
           });
