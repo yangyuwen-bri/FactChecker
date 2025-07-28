@@ -70,13 +70,10 @@ router.post('/claims', async (req, res, next) => {
       });
     }
 
-    // Create anthropic client with user's API key
-    const userAnthropic = anthropic({
-      apiKey: anthropic_api_key,
-    });
-
     const { object } = await generateObject({
-      model: userAnthropic('claude-3-5-sonnet-20241022'), // Using a more available model
+      model: anthropic('claude-3-5-haiku-20241022', {
+        apiKey: anthropic_api_key,
+      }),
       schema: factCheckSchema,
       output: 'object',
       prompt: `你是一个专业的事实核查专家。请注意以下重要限制和指导原则：
@@ -250,10 +247,6 @@ router.post('/batch', async (req, res, next) => {
     }
 
     // Create anthropic client with user's API key
-    const userAnthropic = anthropic({
-      apiKey: anthropic_api_key,
-    });
-
     const results = [];
     const errors = [];
 
@@ -271,7 +264,9 @@ router.post('/batch', async (req, res, next) => {
 
         // Process the claim (reuse the logic from single claim verification)
         const { object } = await generateObject({
-          model: userAnthropic('claude-3-5-sonnet-20241022'),
+          model: anthropic('claude-3-5-haiku-20241022', {
+            apiKey: anthropic_api_key,
+          }),
           schema: factCheckSchema,
           output: 'object',
           prompt: `你是一个专业的事实核查专家。请注意以下重要限制和指导原则：

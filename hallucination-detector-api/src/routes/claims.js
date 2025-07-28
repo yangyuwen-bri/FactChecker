@@ -56,14 +56,11 @@ router.post('/extract', async (req, res, next) => {
     let object;
 
     try {
-      // Create anthropic client with user's API key
-      const userAnthropic = anthropic({
-        apiKey: anthropic_api_key,
-      });
-
       // Attempt to generate object using AI
       const result = await generateObject({
-        model: userAnthropic('claude-3-5-haiku-20241022'),
+        model: anthropic('claude-3-5-haiku-20241022', {
+          apiKey: anthropic_api_key,
+        }),
         schema: claimsSchema, 
         prompt: `你是一个专业的声明提取专家，专门识别可以通过外部信息源验证或反驳的声明。
 
