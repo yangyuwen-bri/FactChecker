@@ -63,6 +63,9 @@ router.post('/extract', async (req, res, next) => {
       });
 
       // Attempt to generate object using AI
+      console.log('🔧 准备调用Anthropic，API Key长度:', anthropic_api_key.length);
+      console.log('🔧 API Key前10字符:', anthropic_api_key.substring(0, 10));
+      
       const result = await generateObject({
         model: anthropic('claude-3-5-haiku-20241022', {
           apiKey: anthropic_api_key,
@@ -143,12 +146,24 @@ router.post('/extract', async (req, res, next) => {
 
   } catch (error) {
     console.error('Extract claims API error:', error);
+    console.error('🔍 完整错误对象:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    
+    // 特别检查ai库的错误格式
+    if (error.response) {
+      console.error('🌐 HTTP响应错误:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    }
     
     // Handle specific Anthropic API errors
-    if (error.message && error.message.includes('API key')) {
+    if (error.message && (error.message.includes('API key') || error.message.includes('401'))) {
+      console.error('🔑 API密钥相关错误:', error.message);
       return res.status(401).json({ 
         error: 'Anthropic API 密钥无效或缺失',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        debug: error.message
       });
     }
     
