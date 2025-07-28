@@ -1,5 +1,16 @@
 # 🔍 事实核查 API
 
+## ⚠️ 重要更新：现在需要用户提供API密钥
+
+**从现在开始，你需要提供自己的API密钥才能使用此服务：**
+- **Anthropic API Key**: 用于AI文本分析，获取地址：https://console.anthropic.com  
+- **Exa API Key**: 用于信息搜索，获取地址：https://dashboard.exa.ai/api-keys
+
+这样的改动确保了：
+- ✅ 用户使用自己的API配额，不会消耗我们的资源
+- ✅ 更好的隐私保护 - API密钥不会离开你的浏览器
+- ✅ 更稳定的服务 - 不受共享配额限制
+
 一个基于 AI 的智能事实验证服务，可以检测文本内容中的虚假信息。支持 AI 生成内容幻觉检测、新闻真实性验证、学术内容审核等多种应用场景。
 
 ## ✨ 功能特性
@@ -24,10 +35,13 @@ https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app
 # 获取 API 信息
 curl https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app/
 
-# 提取声明
+# 提取声明 (需要提供API Key)
 curl -X POST https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app/api/claims/extract \
   -H "Content-Type: application/json" \
-  -d '{"content": "中国的长城是世界上最长的城墙，全长超过两万公里。"}'
+  -d '{
+    "content": "中国的长城是世界上最长的城墙，全长超过两万公里。",
+    "anthropic_api_key": "sk-ant-api03-your-anthropic-key-here"
+  }'
 ```
 
 ## 📡 API 端点
@@ -49,10 +63,11 @@ const axios = require('axios');
 
 const API_BASE = 'https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app';
 
-async function detectHallucinations(text) {
+async function detectHallucinations(text, anthropicApiKey, exaApiKey) {
   // 1. 提取声明
   const claimsResponse = await axios.post(`${API_BASE}/api/claims/extract`, {
-    content: text
+    content: text,
+    anthropic_api_key: anthropicApiKey
   });
   
   const claims = claimsResponse.data.claims;
@@ -60,13 +75,15 @@ async function detectHallucinations(text) {
   // 2. 验证每个声明
   for (const claim of claims) {
     const searchResponse = await axios.post(`${API_BASE}/api/search/exa`, {
-      query: claim
+      query: claim,
+      exa_api_key: exaApiKey
     });
     
     const verifyResponse = await axios.post(`${API_BASE}/api/verify/claims`, {
       claim: claim,
       original_text: text,
-      exasources: searchResponse.data.results.slice(0, 3)
+      exasources: searchResponse.data.results.slice(0, 3),
+      anthropic_api_key: anthropicApiKey
     });
     
     console.log(`声明: ${claim}`);
@@ -85,11 +102,14 @@ import requests
 
 API_BASE = 'https://hallubacken-5t6wwxo9o-fraps-projects.vercel.app'
 
-def detect_hallucinations(text):
+def detect_hallucinations(text, anthropic_api_key, exa_api_key):
     # 1. 提取声明
     claims_response = requests.post(
         f'{API_BASE}/api/claims/extract',
-        json={'content': text}
+        json={
+            'content': text,
+            'anthropic_api_key': anthropic_api_key
+        }
     )
     claims = claims_response.json()['claims']
     
@@ -97,7 +117,10 @@ def detect_hallucinations(text):
     for claim in claims:
         search_response = requests.post(
             f'{API_BASE}/api/search/exa',
-            json={'query': claim}
+            json={
+                'query': claim,
+                'exa_api_key': exa_api_key
+            }
         )
         
         verify_response = requests.post(
@@ -105,7 +128,8 @@ def detect_hallucinations(text):
             json={
                 'claim': claim,
                 'original_text': text,
-                'exasources': search_response.json()['results'][:3]
+                'exasources': search_response.json()['results'][:3],
+                'anthropic_api_key': anthropic_api_key
             }
         )
         
@@ -114,7 +138,11 @@ def detect_hallucinations(text):
         print(f'评估: {result["assessment"]}')
         print(f'置信度: {result["confidence_score"]}%')
 
-detect_hallucinations('中国的长城是世界上最长的城墙，全长超过两万公里。')
+detect_hallucinations(
+    '中国的长城是世界上最长的城墙，全长超过两万公里。',
+    'sk-ant-api03-your-anthropic-key-here',
+    'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+)
 ```
 
 ## 🛠️ 本地开发

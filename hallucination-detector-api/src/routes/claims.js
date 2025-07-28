@@ -19,7 +19,7 @@ const claimsSchema = z.object({
  */
 router.post('/extract', async (req, res, next) => {
   try {
-    const { content } = req.body;
+    const { content, anthropic_api_key } = req.body;
     
     if (!content) {
       return res.status(400).json({ 
@@ -35,12 +35,35 @@ router.post('/extract', async (req, res, next) => {
       });
     }
 
+    if (!anthropic_api_key) {
+      return res.status(400).json({ 
+        error: 'Anthropic API Key 是必需的',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 严格验证 Anthropic API Key
+    if (typeof anthropic_api_key !== 'string' || 
+        !anthropic_api_key.startsWith('sk-ant-') ||
+        anthropic_api_key.length < 50 ||
+        !/^[a-zA-Z0-9\-_]+$/.test(anthropic_api_key)) {
+      return res.status(400).json({ 
+        error: 'Anthropic API Key 格式无效或不完整',
+        timestamp: new Date().toISOString()
+      });
+    }
+
     let object;
 
     try {
+      // Create anthropic client with user's API key
+      const userAnthropic = anthropic({
+        apiKey: anthropic_api_key,
+      });
+
       // Attempt to generate object using AI
       const result = await generateObject({
-        model: anthropic('claude-3-5-haiku-20241022'),
+        model: userAnthropic('claude-3-5-haiku-20241022'),
         schema: claimsSchema, 
         prompt: `你是一个专业的声明提取专家，专门识别可以通过外部信息源验证或反驳的声明。
 
@@ -117,6 +140,29 @@ router.post('/extract', async (req, res, next) => {
 
   } catch (error) {
     console.error('Extract claims API error:', error);
+    
+    // Handle specific Anthropic API errors
+    if (error.message && error.message.includes('API key')) {
+      return res.status(401).json({ 
+        error: 'Anthropic API 密钥无效或缺失',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    if (error.message && error.message.includes('rate limit')) {
+      return res.status(429).json({ 
+        error: 'Anthropic API 请求频率超限',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (error.message && error.message.includes('insufficient_quota')) {
+      return res.status(402).json({ 
+        error: 'Anthropic API 配额不足',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     next(error);
   }
 });
