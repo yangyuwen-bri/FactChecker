@@ -89,8 +89,10 @@ app.get('/', (req, res) => {
     endpoints: {
       health: 'GET /health',
       extractClaims: 'POST /api/claims/extract',
+      extractClaimsDeepSeek: 'POST /api/claims/extract-deepseek',
       searchSources: 'POST /api/search/exa',
-      verifyClaims: 'POST /api/verify/claims'
+      verifyClaims: 'POST /api/verify/claims',
+      verifyClaimsDeepSeek: 'POST /api/verify/claims-deepseek'
     },
     documentation: 'See README.md for detailed documentation'
   });

@@ -23,7 +23,44 @@ class HallucinationDetectorClient {
   }
 
   /**
-   * 从文本中提取声明
+   * 使用DeepSeek从文本中提取声明
+   * @param {string} content - 要分析的文本内容
+   * @param {string} deepseekApiKey - DeepSeek API Key
+   */
+  async extractClaimsWithDeepSeek(content, deepseekApiKey) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/claims/extract-deepseek`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          content,
+          deepseek_api_key: deepseekApiKey
+        }),
+      });
+
+      if (!response.ok) {
+        let errorDetail = '';
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.error || errorData.message || '未知错误';
+        } catch {
+          errorDetail = response.statusText || '服务器错误';
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
+      }
+
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      throw new Error(`DeepSeek提取声明失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 从文本中提取声明 (Anthropic)
    * @param {string} content - 要分析的文本内容
    * @param {string} anthropicApiKey - Anthropic API Key
    */
@@ -73,13 +110,13 @@ class HallucinationDetectorClient {
   }
 
   /**
-   * 搜索相关信息源
+   * 搜索相关信息源 (Exa)
    * @param {string} query - 搜索查询
    * @param {string} exaApiKey - Exa API Key
    */
   async searchSources(query, exaApiKey) {
     try {
-      console.log('🌐 调用搜索API...', query);
+
       
       const response = await fetch(`${this.baseUrl}/api/search/exa`, {
         method: 'POST',
@@ -92,7 +129,7 @@ class HallucinationDetectorClient {
         }),
       });
 
-      console.log('📡 搜索API响应状态:', response.status);
+      console.log('📡 Exa搜索API响应状态:', response.status);
 
       if (!response.ok) {
         let errorDetail = '';
@@ -118,16 +155,150 @@ class HallucinationDetectorClient {
         actualResultsCount = result.length;
       }
       
-      console.log('✅ 搜索成功，找到', actualResultsCount, '个结果');
+
       return result;
     } catch (error) {
-      console.error('❌ 搜索失败:', error);
-      throw new Error(`搜索源失败: ${error.message}`);
+      console.error('❌ Exa搜索失败:', error);
+      throw new Error(`Exa搜索源失败: ${error.message}`);
     }
   }
 
   /**
-   * 验证单个声明
+   * 使用博查搜索相关信息源
+   * @param {string} query - 搜索查询
+   * @param {string} bochaApiKey - 博查 API Key
+   * @param {number} maxResults - 最大结果数量
+   */
+  async searchWithBocha(query, bochaApiKey, maxResults = 10) {
+    try {
+
+      
+      const response = await fetch('https://api.bochaai.com/v1/web-search', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${bochaApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query,
+          summary: true,  // 启用摘要功能
+          count: Math.min(maxResults, 50), // 博查最大支持50个结果
+          freshness: "noLimit"
+        })
+      });
+
+      console.log('📡 博查搜索API响应状态:', response.status);
+
+      if (!response.ok) {
+        let errorDetail = '';
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.message || errorData.msg || '未知错误';
+        } catch {
+          errorDetail = response.statusText || '服务器错误';
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.code !== 200) {
+        throw new Error(`博查API错误: ${result.msg || '未知错误'}`);
+      }
+
+      // 转换博查结果为统一格式
+      const normalizedResults = this.normalizeBochaResults(result.data?.webPages?.value || []);
+      
+
+      
+      // 返回与Exa相同的格式
+      return {
+        results: normalizedResults,
+        totalEstimatedMatches: result.data?.webPages?.totalEstimatedMatches || normalizedResults.length
+      };
+    } catch (error) {
+      console.error('❌ 博查搜索失败:', error);
+      throw new Error(`博查搜索源失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 将博查搜索结果标准化为与Exa相同的格式
+   * @param {Array} bochaResults - 博查搜索原始结果
+   */
+  normalizeBochaResults(bochaResults) {
+    return bochaResults.map(item => ({
+      title: item.name || '无标题',
+      url: item.url,
+      snippet: item.snippet || '',
+      text: item.summary || item.snippet || '',  // 优先使用摘要
+      publishedDate: item.datePublished,
+      siteName: item.siteName,
+      // 博查特有字段，保留以备后用
+      _bocha: {
+        siteIcon: item.siteIcon,
+        displayUrl: item.displayUrl,
+        dateLastCrawled: item.dateLastCrawled,
+        language: item.language,
+        isFamilyFriendly: item.isFamilyFriendly,
+        isNavigational: item.isNavigational
+      }
+    }));
+  }
+
+  /**
+   * 使用DeepSeek验证单个声明
+   * @param {string} claim - 要验证的声明
+   * @param {string} originalText - 原始文本
+   * @param {Array} sources - 相关信息源
+   * @param {string} deepseekApiKey - DeepSeek API Key
+   */
+  async verifyClaimWithDeepSeek(claim, originalText, sources, deepseekApiKey) {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/verify/claims-deepseek`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          claim,
+          original_text: originalText,
+          sources: sources,
+          deepseek_api_key: deepseekApiKey,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorDetail = '';
+        try {
+          const errorData = await response.json();
+          errorDetail = errorData.error || errorData.message || '未知错误';
+        } catch {
+          errorDetail = response.statusText || '服务器错误';
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${errorDetail}`);
+      }
+
+      const result = await response.json();
+      
+      // 处理不同的响应格式
+      let verificationData = result;
+      if (result.data) {
+        verificationData = result.data;
+      } else if (result.success && result.data) {
+        verificationData = result.data;
+      }
+      
+      return verificationData;
+    } catch (error) {
+      throw new Error(`DeepSeek验证声明失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 验证单个声明 (Anthropic)
    * @param {string} claim - 要验证的声明
    * @param {string} originalText - 原始文本
    * @param {Array} exaSources - 相关信息源
@@ -135,7 +306,7 @@ class HallucinationDetectorClient {
    */
   async verifyClaim(claim, originalText, exaSources, anthropicApiKey) {
     try {
-      console.log('🧠 调用验证API...', claim.substring(0, 50) + '...');
+
       
       const response = await fetch(`${this.baseUrl}/api/verify/claims`, {
         method: 'POST',
@@ -219,14 +390,28 @@ class HallucinationDetectorClient {
       includeTransparency = true, // 新增：是否包含透明度信息
       anthropicApiKey = null, // 新增：Anthropic API Key
       exaApiKey = null, // 新增：Exa API Key
+      deepseekApiKey = null, // 新增：DeepSeek API Key
+      bochaApiKey = null, // 新增：博查 API Key
+      usedomesticAPIs = false, // 新增：是否使用国内接口
     } = options;
 
-    // 验证API Key
-    if (!anthropicApiKey) {
-      throw new Error('缺少 Anthropic API Key');
-    }
-    if (!exaApiKey) {
-      throw new Error('缺少 Exa API Key');
+    // 验证API Key - 根据接口类型验证
+    if (usedomesticAPIs) {
+      // 国内接口验证
+      if (!deepseekApiKey) {
+        throw new Error('缺少 DeepSeek API Key');
+      }
+      if (!bochaApiKey) {
+        throw new Error('缺少博查 API Key');
+      }
+    } else {
+      // 国际接口验证
+      if (!anthropicApiKey) {
+        throw new Error('缺少 Anthropic API Key');
+      }
+      if (!exaApiKey) {
+        throw new Error('缺少 Exa API Key');
+      }
     }
 
     // 进度回调辅助函数
@@ -249,8 +434,15 @@ class HallucinationDetectorClient {
         progress: 10
       });
 
-      const claimsResult = await this.extractClaims(text, anthropicApiKey);
-      console.log('🔍 提取声明原始响应:', claimsResult);
+      let claimsResult;
+      if (usedomesticAPIs) {
+        // 使用DeepSeek提取声明
+        claimsResult = await this.extractClaimsWithDeepSeek(text, deepseekApiKey);
+      } else {
+        // 使用Anthropic提取声明
+        claimsResult = await this.extractClaims(text, anthropicApiKey);
+      }
+
       
       // 处理不同的API响应格式
       let claims = [];
@@ -321,21 +513,30 @@ class HallucinationDetectorClient {
         };
 
         // 搜索相关信息
+        const searchEngine = usedomesticAPIs ? '博查AI' : 'Exa.ai';
         callProgress('searching_sources', {
           message: `为声明 ${currentClaim} 搜索相关信息源...`,
           claim: claim.claim,
-          searchEngine: 'Exa.ai'
+          searchEngine: searchEngine
         });
 
         claimProcessLog.steps.push({
           step: 'search_sources',
           status: 'started',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          searchEngine: searchEngine
         });
 
         try {
-          const searchResult = await this.searchSources(claim.claim, exaApiKey);
-          console.log('🌐 搜索原始响应:', searchResult);
+          let searchResult;
+          if (usedomesticAPIs) {
+            // 使用博查搜索
+            searchResult = await this.searchWithBocha(claim.claim, bochaApiKey, maxSearchResults);
+          } else {
+            // 使用Exa搜索
+            searchResult = await this.searchSources(claim.claim, exaApiKey);
+          }
+
           
           // 处理不同的搜索响应格式
           let sources = [];
@@ -392,10 +593,11 @@ class HallucinationDetectorClient {
           }
 
           // 验证声明
+          const aiModel = usedomesticAPIs ? 'DeepSeek' : 'Claude 3.5';
           callProgress('analyzing_claim', {
-            message: `正在使用 AI 分析声明 ${currentClaim}...`,
+            message: `正在使用 ${aiModel} 分析声明 ${currentClaim}...`,
             claim: claim.claim,
-            aiModel: 'Claude 3.5',
+            aiModel: aiModel,
             sourcesUsed: Math.min(sources.length, maxSearchResults)
           });
 
@@ -403,18 +605,30 @@ class HallucinationDetectorClient {
             step: 'ai_analysis',
             status: 'started',
             timestamp: new Date().toISOString(),
-            model: 'Claude 3.5 Haiku',
+            model: usedomesticAPIs ? 'DeepSeek' : 'Claude 3.5 Haiku',
             sourcesUsed: Math.min(sources.length, maxSearchResults)
           });
 
-          const verificationResult = await this.verifyClaim(
-            claim.claim,
-            claim.original_text,
-            sources.slice(0, maxSearchResults),
-            anthropicApiKey
-          );
+          let verificationResult;
+          if (usedomesticAPIs) {
+            // 使用DeepSeek进行分析
+            verificationResult = await this.verifyClaimWithDeepSeek(
+              claim.claim, 
+              claim.original_text, 
+              sources.slice(0, maxSearchResults), 
+              deepseekApiKey
+            );
+          } else {
+            // 使用Anthropic进行分析
+            verificationResult = await this.verifyClaim(
+              claim.claim,
+              claim.original_text,
+              sources.slice(0, maxSearchResults),
+              anthropicApiKey
+            );
+          }
 
-          console.log('🧠 验证原始响应:', verificationResult);
+    
           
           // 处理不同的验证响应格式
           let verificationData = verificationResult;
@@ -518,9 +732,10 @@ class HallucinationDetectorClient {
           completedSteps: claims.length * 3 + 2,
           processingTime: new Date().toISOString(),
           detailedLog: transparencyLog,
-          searchEngine: 'Exa.ai',
-          aiModel: 'Claude 3.5 Haiku',
-          apiCalls: claims.length * 2 + 1 // 1次提取 + 每个声明2次调用
+          searchEngine: usedomesticAPIs ? '博查AI' : 'Exa.ai',
+          aiModel: usedomesticAPIs ? 'DeepSeek' : 'Claude 3.5 Haiku',
+          apiCalls: claims.length * 2 + 1, // 1次提取 + 每个声明2次调用
+          interfaceType: usedomesticAPIs ? '国内接口' : '国际接口'
         } : undefined,
         summary: {
           total_claims: claims.length,

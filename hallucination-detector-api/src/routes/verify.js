@@ -108,18 +108,18 @@ router.post('/claims', async (req, res, next) => {
 4. 如果涉及较新信息且搜索结果不充分，在总结中明确说明
 
 **📚 信息源：**
-${exasources.map((source, index) => `信息源 ${index + 1}：
-文本：${source.text || '无文本内容'}
-URL：${source.url || '无URL'}
-标题：${source.title || '无标题'}
-`).join('\n')}
+      ${exasources.map((source, index) => `信息源 ${index + 1}：
+      文本：${source.text || '无文本内容'}
+      URL：${source.url || '无URL'}
+      标题：${source.title || '无标题'}
+      `).join('\n')}
 
 **📄 原始文本：** ${original_text}
 
 **🎯 需要验证的声明：** ${claim}
 
 **📋 输出要求：**
-请以JSON对象格式提供答案，结构如下：
+      请以JSON对象格式提供答案，结构如下：
 
 {
   "claim": "声明内容",
@@ -302,18 +302,18 @@ router.post('/batch', async (req, res, next) => {
 3. **不确定性诚实表达**：如果搜索结果不足且涉及较新信息，坦诚说明限制
 
 **📚 信息源：**
-${claimData.exasources.map((source, index) => `信息源 ${index + 1}：
-文本：${source.text || '无文本内容'}
-URL：${source.url || '无URL'}
-标题：${source.title || '无标题'}
-`).join('\n')}
+          ${claimData.exasources.map((source, index) => `信息源 ${index + 1}：
+          文本：${source.text || '无文本内容'}
+          URL：${source.url || '无URL'}
+          标题：${source.title || '无标题'}
+          `).join('\n')}
 
 **📄 原始文本：** ${claimData.original_text}
 
 **🎯 需要验证的声明：** ${claimData.claim}
 
 **📋 输出要求：**
-请以JSON对象格式提供答案，结构如下：
+          请以JSON对象格式提供答案，结构如下：
 
 {
   "claim": "声明内容",
@@ -419,6 +419,188 @@ URL：${source.url || '无URL'}
     if (error.message && error.message.includes('unauthorized')) {
       return res.status(401).json({ 
         error: 'Anthropic API 密钥无权限',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    next(error);
+  }
+});
+
+/**
+ * POST /api/verify/claims-deepseek
+ * Verify claims against provided sources using DeepSeek API
+ */
+router.post('/claims-deepseek', async (req, res, next) => {
+  try {
+    const { claim, original_text, sources, deepseek_api_key } = req.body;
+
+    // Validation
+    if (!claim || !original_text || !sources) {
+      return res.status(400).json({ 
+        error: '声明、原始文本和信息源都是必需的',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (!deepseek_api_key) {
+      return res.status(400).json({ 
+        error: 'DeepSeek API Key 是必需的',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (typeof claim !== 'string' || claim.trim().length === 0) {
+      return res.status(400).json({ 
+        error: '声明必须是非空字符串',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (typeof original_text !== 'string' || original_text.trim().length === 0) {
+      return res.status(400).json({ 
+        error: '原始文本必须是非空字符串',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (!Array.isArray(sources)) {
+      return res.status(400).json({ 
+        error: '信息源必须是数组格式',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Call DeepSeek API
+    const deepseekResponse = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${deepseek_api_key}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'system',
+            content: `你是一个专业的事实核查专家。请注意以下重要限制和指导原则：
+
+**⚠️ 重要：时间限制声明**
+我的训练数据截止到特定时间，对于较新的事件和信息，我的内置知识可能不完整或过时。
+
+**📋 验证原则（按优先级排序）：**
+1. **搜索结果优先**：主要基于提供的外部信息源进行判断，这些是最新的可靠数据
+2. **时间敏感性判断**：
+   - 如果声明涉及较新的事件→高度依赖搜索结果
+   - 如果声明涉及股价、新闻、政策等时效性强的信息→以搜索结果为准
+   - 如果声明涉及历史事实、科学定律等相对稳定的信息→可结合内置知识
+3. **不确定性诚实表达**：如果搜索结果不足且涉及较新信息，坦诚说明限制
+
+**📋 输出要求：**
+请以JSON对象格式提供答案，结构如下：
+
+{
+  "claim": "声明内容",
+  "assessment": "True" 或 "False" 或 "Insufficient Information",
+  "summary": "基于搜索结果的判断理由。请用中文详细说明。",
+  "fixed_original_text": "如果评估为False，请修正原始文本（保持其他内容不变，只修正事实错误的部分）",
+  "confidence_score": 0到100之间的数字,
+  "time_sensitivity_note": "如果声明涉及时效性信息，填写时效性提醒"
+}
+
+用中文回答，但保持JSON格式和assessment字段的英文值。`
+          },
+          {
+            role: 'user',
+            content: `**📚 信息源：**
+${sources.map((source, index) => `信息源 ${index + 1}：
+文本：${source.text || '无文本内容'}
+URL：${source.url || '无URL'}
+标题：${source.title || '无标题'}
+`).join('\n')}
+
+**📄 原始文本：** ${original_text}
+
+**🎯 需要验证的声明：** ${claim}
+
+请根据以上信息源分析这个声明的真实性。`
+          }
+        ],
+        stream: false,
+        temperature: 0.3
+      })
+    });
+
+    if (!deepseekResponse.ok) {
+      const errorText = await deepseekResponse.text();
+      throw new Error(`DeepSeek API error: ${deepseekResponse.status} ${errorText}`);
+    }
+
+    const deepseekResult = await deepseekResponse.json();
+    
+    if (!deepseekResult.choices || !deepseekResult.choices[0] || !deepseekResult.choices[0].message) {
+      throw new Error('DeepSeek API返回格式异常');
+    }
+
+    // Parse the JSON response from DeepSeek
+    let analysisResult;
+    try {
+      const content = deepseekResult.choices[0].message.content;
+      // Extract JSON from response (in case there's additional text)
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisResult = JSON.parse(jsonMatch[0]);
+      } else {
+        analysisResult = JSON.parse(content);
+      }
+    } catch (parseError) {
+      throw new Error(`无法解析DeepSeek响应: ${parseError.message}`);
+    }
+
+    // Validate required fields
+    if (!analysisResult.claim || !analysisResult.assessment || !analysisResult.summary) {
+      throw new Error('DeepSeek响应缺少必要字段');
+    }
+
+    // Ensure assessment is valid
+    if (!['True', 'False', 'Insufficient Information'].includes(analysisResult.assessment)) {
+      analysisResult.assessment = 'Insufficient Information';
+    }
+
+    // Ensure confidence_score is valid
+    if (typeof analysisResult.confidence_score !== 'number' || 
+        analysisResult.confidence_score < 0 || 
+        analysisResult.confidence_score > 100) {
+      analysisResult.confidence_score = 50;
+    }
+
+    res.json({
+      success: true,
+      data: analysisResult,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('DeepSeek verification error:', error);
+    
+    // Handle specific API errors
+    if (error.message.includes('401')) {
+      return res.status(401).json({ 
+        error: 'DeepSeek API 密钥无效或无权限',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    if (error.message.includes('429')) {
+      return res.status(429).json({ 
+        error: 'DeepSeek API 请求频率超限，请稍后重试',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    if (error.message.includes('insufficient_quota')) {
+      return res.status(402).json({ 
+        error: 'DeepSeek API 额度不足',
         timestamp: new Date().toISOString()
       });
     }

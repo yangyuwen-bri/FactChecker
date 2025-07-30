@@ -140,36 +140,51 @@
 
         .api-key-input-group {
             margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
         }
 
         .api-key-input-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 500;
             color: #333;
+            font-size: 0.9em;
         }
 
         .api-key-input-group input {
-            transition: border-color 0.3s;
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
         .api-key-input-group input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
         .api-key-input-group small {
             display: block;
-            margin-top: 5px;
+            margin-top: 8px;
             font-size: 12px;
+            color: #666;
         }
 
         .api-key-input-group small a {
             color: #667eea;
             text-decoration: none;
+            transition: color 0.3s;
         }
 
         .api-key-input-group small a:hover {
+            color: #5a6fd8;
             text-decoration: underline;
         }
 
@@ -177,31 +192,88 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .api-key-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .api-key-actions .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+        }
+
+        .api-key-actions .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .api-key-actions .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e1e5e9;
+        }
+
+        .api-key-actions .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .api-key-actions .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .api-key-actions .btn .icon {
+            font-size: 1.1em;
         }
 
         .api-key-status {
-            padding: 10px;
-            border-radius: 6px;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .api-key-status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
         }
 
         .api-key-status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
 
         .api-key-status.warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
         }
 
         /* 透明度设置 */
@@ -723,6 +795,107 @@
             margin-bottom: 10px;
         }
 
+        .api-keys-section {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 400px;
+            max-height: calc(100vh - 100px);
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            padding: 20px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+            opacity: 0;
+            visibility: hidden;
+            overflow-y: auto;
+        }
+
+        .api-keys-section.active {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .settings-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .settings-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .settings-toggle .icon {
+            font-size: 1.2em;
+        }
+
+        .api-keys-section .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            color: #666;
+        }
+
+        .api-keys-section .close-btn:hover {
+            color: #333;
+        }
+
+        /* 标签页样式 */
+        .api-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e1e5e9;
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -750,11 +923,47 @@
             .assessment {
                 align-self: flex-start;
             }
+
+            .api-keys-section {
+                width: 90%;
+                max-width: 400px;
+                top: 50%;
+                left: 50%;
+                max-height: 80vh;
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .api-keys-section.active {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .settings-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .api-key-actions {
+                flex-direction: column;
+            }
+
+            .api-key-actions .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <button class="settings-toggle" onclick="toggleSettings()">
+            <span class="icon">⚙️</span>
+            <span>API设置</span>
+        </button>
         <div class="header">
             <h1>✨ Fact Checker</h1>
             <p>智能内容事实验证平台</p>
@@ -773,66 +982,128 @@
 
                 <!-- API Key 设置区域 -->
                 <div class="api-keys-section">
-                    <h3>🔑 API Key 设置</h3>
-                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                        请输入你的API密钥。密钥将保存在本地浏览器中，不会上传到服务器。
+                    <button class="close-btn" onclick="toggleSettings()">×</button>
+                    <h3>🔑 API设置</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                        请选择接口类型并输入对应的API密钥。密钥将保存在本地浏览器中，不会上传到服务器。
                     </p>
-                    
-                    <div class="api-key-input-group">
-                        <label for="anthropicApiKey">Anthropic API Key:</label>
-                        <div style="position: relative;">
-                            <input 
-                                type="password" 
-                                id="anthropicApiKey" 
-                                placeholder="sk-ant-api..." 
-                                style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
-                            >
-                            <button 
-                                type="button" 
-                                onclick="togglePasswordVisibility('anthropicApiKey')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
-                            >👁️</button>
-                        </div>
-                        <small style="color: #666;">
-                            获取地址: <a href="https://console.anthropic.com" target="_blank">https://console.anthropic.com</a><br>
-                            格式：以 sk-ant- 开头
-                        </small>
+
+                    <!-- 标签页导航 -->
+                    <div class="api-tabs">
+                        <button class="tab-btn active" onclick="switchTab('international')" id="internationalTab">
+                            🌍 国际接口
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('domestic')" id="domesticTab">
+                            🇨🇳 国内接口
+                        </button>
                     </div>
 
-                    <div class="api-key-input-group">
-                        <label for="exaApiKey">Exa API Key:</label>
-                        <div style="position: relative;">
-                            <input 
-                                type="password" 
-                                id="exaApiKey" 
-                                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
-                                style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
-                            >
-                            <button 
-                                type="button" 
-                                onclick="togglePasswordVisibility('exaApiKey')"
-                                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
-                            >👁️</button>
+                    <!-- 国际接口标签页内容 -->
+                    <div class="tab-content active" id="internationalContent">
+                        <div class="api-key-input-group">
+                            <label for="anthropicApiKey">Anthropic API Key:</label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="password" 
+                                    id="anthropicApiKey" 
+                                    placeholder="sk-ant-api03-..." 
+                                    style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('anthropicApiKey')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                                >👁️</button>
+                            </div>
+                            <small>
+                                获取地址: <a href="https://console.anthropic.com/account/keys" target="_blank">https://console.anthropic.com/account/keys</a><br>
+                                格式：以sk-ant-开头
+                            </small>
                         </div>
-                        <small style="color: #666;">
-                            获取地址: <a href="https://dashboard.exa.ai/api-keys" target="_blank">https://dashboard.exa.ai/api-keys</a><br>
-                            格式：UUID (如：12345678-1234-1234-1234-123456789abc)
-                        </small>
+
+                        <div class="api-key-input-group">
+                            <label for="exaApiKey">Exa API Key:</label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="password" 
+                                    id="exaApiKey" 
+                                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
+                                    style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('exaApiKey')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                                >👁️</button>
+                            </div>
+                            <small>
+                                获取地址: <a href="https://dashboard.exa.ai/api-keys" target="_blank">https://dashboard.exa.ai/api-keys</a><br>
+                                格式：UUID (如：12345678-1234-1234-1234-123456789abc)
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- 国内接口标签页内容 -->
+                    <div class="tab-content" id="domesticContent">
+                        <div class="api-key-input-group">
+                            <label for="deepseekApiKey">DeepSeek API Key:</label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="password" 
+                                    id="deepseekApiKey" 
+                                    placeholder="sk-..." 
+                                    style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('deepseekApiKey')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                                >👁️</button>
+                            </div>
+                            <small>
+                                获取地址: <a href="https://platform.deepseek.com/api_keys" target="_blank">https://platform.deepseek.com/api_keys</a><br>
+                                格式：以sk-开头的API密钥
+                            </small>
+                        </div>
+
+                        <div class="api-key-input-group">
+                            <label for="bochaApiKey">博查 API Key:</label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="password" 
+                                    id="bochaApiKey" 
+                                    placeholder="请输入博查API密钥..." 
+                                    style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 6px; font-family: monospace;"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility('bochaApiKey')"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;"
+                                >👁️</button>
+                            </div>
+                            <small>
+                                获取地址: <a href="https://bocha.co" target="_blank">https://bocha.co</a><br>
+                                格式：博查平台提供的API密钥
+                            </small>
+                        </div>
                     </div>
 
                     <div class="api-key-actions">
-                        <button class="btn btn-primary" onclick="saveApiKeys()" style="background: #28a745; color: white;">
-                            💾 保存API密钥
+                        <button class="btn btn-primary" onclick="saveApiKeys()">
+                            <span class="icon">💾</span>
+                            <span>保存密钥</span>
                         </button>
                         <button class="btn btn-secondary" onclick="testApiKeys()" id="testKeysBtn">
-                            🧪 测试API密钥
+                            <span class="icon">🧪</span>
+                            <span>测试密钥</span>
                         </button>
-                        <button class="btn btn-secondary" onclick="clearApiKeys()">
-                            🗑️ 清除密钥
+                        <button class="btn btn-secondary" onclick="clearCurrentTabKeys()">
+                            <span class="icon">🗑️</span>
+                            <span>清除当前</span>
                         </button>
                     </div>
 
-                    <div id="apiKeyStatus" style="margin-top: 10px;"></div>
+                    <div id="apiKeyStatus" style="display: none;"></div>
                 </div>
 
                 <div class="transparency-section">
@@ -1048,7 +1319,7 @@
             const resultsDiv = document.getElementById('results');
             const resultsContent = document.getElementById('resultsContent');
             
-            console.log('📊 显示结果:', results);
+
             
             resultsContent.innerHTML = '';
 
@@ -1176,7 +1447,7 @@
                         case 'search_sources':
                             if (step.status === 'started') {
                                 stepDesc = `🔍 开始搜索信息源`;
-                                stepDetails = `使用 Exa.ai 搜索与声明相关的信息`;
+                                stepDetails = `使用 ${step.searchEngine || 'Exa.ai'} 搜索与声明相关的信息`;
                             } else if (step.status === 'completed') {
                                 stepDesc = `🌐 搜索完成 - 找到 ${step.sourcesFound || 0} 个相关信息源`;
                                 stepDetails = step.sourcesFound > 0 ? 
@@ -1305,12 +1576,13 @@
         }
 
         function saveApiKeys() {
-            const anthropicKey = document.getElementById('anthropicApiKey').value;
-            const exaKey = document.getElementById('exaApiKey').value;
-            
             const keys = {
-                anthropic: anthropicKey,
-                exa: exaKey
+                // 国际接口
+                anthropic: document.getElementById('anthropicApiKey').value.trim(),
+                exa: document.getElementById('exaApiKey').value.trim(),
+                // 国内接口
+                deepseek: document.getElementById('deepseekApiKey').value.trim(),
+                bocha: document.getElementById('bochaApiKey').value.trim()
             };
             
             localStorage.setItem('hallucination_detector_api_keys', JSON.stringify(keys));
@@ -1320,11 +1592,20 @@
         function loadApiKeys() {
             const storedKeys = JSON.parse(localStorage.getItem('hallucination_detector_api_keys') || '{}');
             
+            // 加载国际接口密钥
             if (storedKeys.anthropic) {
                 document.getElementById('anthropicApiKey').value = storedKeys.anthropic;
             }
             if (storedKeys.exa) {
                 document.getElementById('exaApiKey').value = storedKeys.exa;
+            }
+            
+            // 加载国内接口密钥
+            if (storedKeys.deepseek) {
+                document.getElementById('deepseekApiKey').value = storedKeys.deepseek;
+            }
+            if (storedKeys.bocha) {
+                document.getElementById('bochaApiKey').value = storedKeys.bocha;
             }
         }
 
@@ -1336,33 +1617,70 @@
         }
 
         function getApiKeys() {
-            return {
-                anthropic: document.getElementById('anthropicApiKey').value.trim(),
-                exa: document.getElementById('exaApiKey').value.trim()
-            };
+            const internationalContent = document.getElementById('internationalContent');
+            
+            if (internationalContent.classList.contains('active')) {
+                // 返回国际接口密钥
+                return {
+                    type: 'international',
+                    anthropic: document.getElementById('anthropicApiKey').value.trim(),
+                    exa: document.getElementById('exaApiKey').value.trim()
+                };
+            } else {
+                // 返回国内接口密钥
+                return {
+                    type: 'domestic',
+                    deepseek: document.getElementById('deepseekApiKey').value.trim(),
+                    bocha: document.getElementById('bochaApiKey').value.trim()
+                };
+            }
         }
 
         function validateApiKeys() {
             const keys = getApiKeys();
             
-            if (!keys.anthropic) {
-                showApiKeyStatus('请输入Anthropic API Key', 'error');
-                return false;
-            }
-            
-            if (!keys.exa) {
-                showApiKeyStatus('请输入Exa API Key', 'error');
-                return false;
-            }
-            
-            // Anthropic API Key 严格验证
-            if (!validateAnthropicKey(keys.anthropic)) {
-                return false;
-            }
-            
-            // Exa API Key 严格验证
-            if (!validateExaKey(keys.exa)) {
-                return false;
+            if (keys.type === 'international') {
+                // 验证国际接口
+                if (!keys.anthropic) {
+                    showApiKeyStatus('请输入Anthropic API Key', 'error');
+                    return false;
+                }
+                
+                if (!keys.exa) {
+                    showApiKeyStatus('请输入Exa API Key', 'error');
+                    return false;
+                }
+                
+                // Anthropic API Key 严格验证
+                if (!validateAnthropicKey(keys.anthropic)) {
+                    return false;
+                }
+                
+                // Exa API Key 严格验证
+                if (!validateExaKey(keys.exa)) {
+                    return false;
+                }
+            } else {
+                // 验证国内接口
+                if (!keys.deepseek) {
+                    showApiKeyStatus('请输入DeepSeek API Key', 'error');
+                    return false;
+                }
+                
+                if (!keys.bocha) {
+                    showApiKeyStatus('请输入博查 API Key', 'error');
+                    return false;
+                }
+                
+                // DeepSeek API Key 验证
+                if (!validateDeepSeekKey(keys.deepseek)) {
+                    return false;
+                }
+                
+                // 博查 API Key 验证
+                if (!validateBochaKey(keys.bocha)) {
+                    return false;
+                }
             }
             
             return true;
@@ -1403,12 +1721,66 @@
             return true;
         }
 
+        function validateDeepSeekKey(key) {
+            // DeepSeek API Key 格式验证（通常以sk-开头）
+            if (!key.startsWith('sk-')) {
+                showApiKeyStatus('DeepSeek API Key格式无效（应以sk-开头）', 'error');
+                return false;
+            }
+            
+            // 检查长度（API Key通常比较长）
+            if (key.length < 20) {
+                showApiKeyStatus('DeepSeek API Key长度过短，请检查是否完整', 'error');
+                return false;
+            }
+            
+            // 检查字符集（只允许字母、数字、连字符、下划线）
+            const validChars = /^[a-zA-Z0-9\-_]+$/;
+            if (!validChars.test(key)) {
+                showApiKeyStatus('DeepSeek API Key包含无效字符', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateBochaKey(key) {
+            if (!key || key.trim() === '') {
+                showApiKeyStatus('博查 API Key不能为空', 'error');
+                return false;
+            }
+            
+            if (!key.startsWith('sk-')) {
+                showApiKeyStatus('博查 API Key格式无效（应以sk-开头）', 'error');
+                return false;
+            }
+            
+            if (key.length < 20) {
+                showApiKeyStatus('博查 API Key长度过短，请检查是否完整', 'error');
+                return false;
+            }
+            
+            const hexPart = key.substring(3);
+            const validHexChars = /^[a-fA-F0-9]+$/;
+            if (!validHexChars.test(hexPart)) {
+                showApiKeyStatus('博查 API Key格式无效（sk-后应为十六进制字符）', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
         async function testApiKeys() {
             if (!validateApiKeys()) {
                 return;
             }
             
             const testBtn = document.getElementById('testKeysBtn');
+            if (!testBtn) {
+                showApiKeyStatus('界面错误，请刷新页面重试', 'error');
+                return;
+            }
+            
             const originalText = testBtn.textContent;
             testBtn.disabled = true;
             testBtn.textContent = '🧪 测试中...';
@@ -1418,27 +1790,73 @@
             try {
                 const keys = getApiKeys();
                 
-                // 测试Anthropic API
-                const anthropicTest = await fetch('https://hallubacken.vercel.app/api/verify/claims', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        claim: '测试声明',
-                        original_text: '测试文本',
-                        exasources: [{ text: '测试', url: 'test' }],
-                        anthropic_api_key: keys.anthropic,
-                        exa_api_key: keys.exa
-                    }),
-                });
-                
-                if (anthropicTest.ok) {
-                    showApiKeyStatus('✅ API密钥验证成功！', 'success');
-                    saveApiKeys(); // 保存有效的密钥
+                if (keys.type === 'international') {
+                    // 测试国际接口
+                    const anthropicTest = await fetch('https://hallubacken.vercel.app/api/verify/claims', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            claim: '测试声明',
+                            original_text: '测试文本',
+                            exasources: [{ text: '测试', url: 'test' }],
+                            anthropic_api_key: keys.anthropic,
+                            exa_api_key: keys.exa
+                        }),
+                    });
+                    
+                    if (anthropicTest.ok) {
+                        showApiKeyStatus('✅ 国际接口验证成功！', 'success');
+                        saveApiKeys(); // 保存有效的密钥
+                    } else {
+                        const error = await anthropicTest.text();
+                        showApiKeyStatus(`❌ 国际接口验证失败: ${error}`, 'error');
+                    }
                 } else {
-                    const error = await anthropicTest.text();
-                    showApiKeyStatus(`❌ API密钥验证失败: ${error}`, 'error');
+                    // 测试国内接口 - 测试博查搜索和DeepSeek分析
+                    try {
+                        if (typeof HallucinationDetectorClient === 'undefined') {
+                            throw new Error('系统组件未正确加载，请刷新页面重试');
+                        }
+                        
+                        const tempClient = new HallucinationDetectorClient();
+                        
+                        // 先测试博查搜索
+                        const searchResult = await tempClient.searchWithBocha('测试搜索', keys.bocha, 1);
+                        
+                        if (!searchResult || !searchResult.results || searchResult.results.length < 0) {
+                            throw new Error('博查搜索返回结果异常');
+                        }
+                        
+                        // 再测试DeepSeek分析
+                        const testSources = searchResult.results.length > 0 ? 
+                            [{ text: '测试信息源', url: 'test', title: '测试' }] : 
+                            [{ text: '测试信息源', url: 'test', title: '测试' }];
+                            
+                        const analysisResult = await tempClient.verifyClaimWithDeepSeek(
+                            '这是一个测试声明', 
+                            '这是测试文本', 
+                            testSources, 
+                            keys.deepseek
+                        );
+                        
+                        if (analysisResult && analysisResult.assessment) {
+                            showApiKeyStatus('✅ 国内接口测试成功！博查搜索和DeepSeek分析均正常', 'success');
+                            saveApiKeys();
+                        } else {
+                            showApiKeyStatus('❌ DeepSeek分析返回结果异常', 'error');
+                        }
+                        
+                    } catch (error) {
+                        if (error.message.includes('博查')) {
+                            showApiKeyStatus(`❌ 博查接口测试失败: ${error.message}`, 'error');
+                        } else if (error.message.includes('DeepSeek')) {
+                            showApiKeyStatus(`❌ DeepSeek接口测试失败: ${error.message}`, 'error');
+                        } else {
+                            showApiKeyStatus(`❌ 国内接口测试失败: ${error.message}`, 'error');
+                        }
+                    }
                 }
                 
             } catch (error) {
@@ -1452,8 +1870,18 @@
         function showApiKeyStatus(message, type) {
             const statusDiv = document.getElementById('apiKeyStatus');
             statusDiv.className = `api-key-status ${type}`;
-            statusDiv.textContent = message;
-            statusDiv.style.display = 'block';
+            
+            // 添加图标
+            let icon = '✅';
+            if (type === 'error') icon = '❌';
+            if (type === 'warning') icon = '⚠️';
+            
+            statusDiv.innerHTML = `
+                <span class="icon">${icon}</span>
+                <span>${message}</span>
+            `;
+            
+            statusDiv.style.display = 'flex';
             
             // 3秒后自动隐藏成功消息
             if (type === 'success') {
@@ -1502,14 +1930,26 @@
             try {
                 const keys = getApiKeys();
                 
-                const result = await client.detectHallucinations(text, {
+                let apiOptions = {
                     maxSearchResults: 3,
                     confidenceThreshold: 80,
                     includeSources: true,
-                    includeTransparency: transparencyEnabled,
-                    anthropicApiKey: keys.anthropic,
-                    exaApiKey: keys.exa
-                }, (step, info) => {
+                    includeTransparency: transparencyEnabled
+                };
+                
+                if (keys.type === 'international') {
+                    // 使用国际接口
+                    apiOptions.anthropicApiKey = keys.anthropic;
+                    apiOptions.exaApiKey = keys.exa;
+                    apiOptions.usedomesticAPIs = false;
+                } else {
+                    // 使用国内接口
+                    apiOptions.deepseekApiKey = keys.deepseek;
+                    apiOptions.bochaApiKey = keys.bocha;
+                    apiOptions.usedomesticAPIs = true;
+                }
+                
+                const result = await client.detectHallucinations(text, apiOptions, (step, info) => {
                     // 进度回调处理
                     handleProgressUpdate(step, info);
                 });
@@ -1578,14 +2018,86 @@
             }
         }
 
-        // 页面加载时恢复API Key
+        function toggleSettings() {
+            const settingsPanel = document.querySelector('.api-keys-section');
+            if (!settingsPanel) return;
+            
+            settingsPanel.classList.toggle('active');
+        }
+
+        function switchTab(tabId) {
+            const internationalContent = document.getElementById('internationalContent');
+            const domesticContent = document.getElementById('domesticContent');
+            const internationalTab = document.getElementById('internationalTab');
+            const domesticTab = document.getElementById('domesticTab');
+
+            if (tabId === 'international') {
+                internationalContent.classList.add('active');
+                domesticContent.classList.remove('active');
+                internationalTab.classList.add('active');
+                domesticTab.classList.remove('active');
+            } else if (tabId === 'domestic') {
+                internationalContent.classList.remove('active');
+                domesticContent.classList.add('active');
+                internationalTab.classList.remove('active');
+                domesticTab.classList.add('active');
+            }
+        }
+
+        function clearCurrentTabKeys() {
+            const internationalContent = document.getElementById('internationalContent');
+            
+            if (internationalContent.classList.contains('active')) {
+                // 清除国际接口密钥
+                document.getElementById('anthropicApiKey').value = '';
+                document.getElementById('exaApiKey').value = '';
+                
+                // 从localStorage中清除对应密钥
+                const storedKeys = JSON.parse(localStorage.getItem('hallucination_detector_api_keys') || '{}');
+                delete storedKeys.anthropic;
+                delete storedKeys.exa;
+                localStorage.setItem('hallucination_detector_api_keys', JSON.stringify(storedKeys));
+                
+                showApiKeyStatus('国际接口密钥已清除', 'success');
+            } else {
+                // 清除国内接口密钥
+                document.getElementById('deepseekApiKey').value = '';
+                document.getElementById('bochaApiKey').value = '';
+                
+                // 从localStorage中清除对应密钥
+                const storedKeys = JSON.parse(localStorage.getItem('hallucination_detector_api_keys') || '{}');
+                delete storedKeys.deepseek;
+                delete storedKeys.bocha;
+                localStorage.setItem('hallucination_detector_api_keys', JSON.stringify(storedKeys));
+                
+                showApiKeyStatus('国内接口密钥已清除', 'success');
+            }
+        }
+
+        // 页面加载时初始化
         document.addEventListener('DOMContentLoaded', function() {
             loadApiKeys();
+            
+            // 点击面板外关闭设置
+            document.addEventListener('click', function(event) {
+                const settingsPanel = document.querySelector('.api-keys-section');
+                const settingsToggle = document.querySelector('.settings-toggle');
+                
+                if (!settingsPanel || !settingsToggle) return;
+                
+                if (settingsPanel.classList.contains('active') && 
+                    !settingsPanel.contains(event.target) && 
+                    !settingsToggle.contains(event.target)) {
+                    toggleSettings();
+                }
+            });
         });
 
         // API Key输入框失焦时自动保存
         document.getElementById('anthropicApiKey').addEventListener('blur', saveApiKeys);
         document.getElementById('exaApiKey').addEventListener('blur', saveApiKeys);
+        document.getElementById('deepseekApiKey').addEventListener('blur', saveApiKeys);
+        document.getElementById('bochaApiKey').addEventListener('blur', saveApiKeys);
 
         // 页面加载完成，等待用户操作
     </script>
